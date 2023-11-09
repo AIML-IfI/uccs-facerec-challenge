@@ -21,3 +21,8 @@ Their sources can be found in `facerec/script`.
 
 
 ### Face recognition
+  baseline-recognition.py
+
+
+### Evaluation
+  evaluation.py

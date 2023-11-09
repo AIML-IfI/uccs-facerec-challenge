@@ -6,16 +6,21 @@ channels:
 
 dependencies:
   - python=3.8
+  - pytorch=1.11
+  - cudatoolkit=11.3
+  - torchvision>=0.12.0
   - pandas>=1.4.3
   - numpy>=1.22.3
   - matplotlib>=3.5.2
   - scikit-learn>=1.1.1
-  - cudatoolkit>=11
-  - pytorch>=1.11.0
-  - torchvision>=0.12.0
+  - scikit-image>=0.19
+  - git>=2.40
   - tqdm>=4.64.0
   - pyyaml
   - pip
   - tensorboard
   - pip:
-      - -e . # install this package as well
+      - opencv-python    # install these packages as well
+      - facenet_pytorch
+      - gdown
+      - termcolor
