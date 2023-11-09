@@ -215,7 +215,7 @@ def build_model(args):
     """
     It builds the MagFace model
     """
-    from MagFace.inference.network_inf import builder_inf
+    from .MagFace.inference.network_inf import builder_inf
 
     # magface requires cpu_mode argument
     args.cpu_mode = not args.gpu
