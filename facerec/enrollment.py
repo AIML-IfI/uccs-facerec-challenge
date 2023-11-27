@@ -26,6 +26,3 @@ def average(gallery_path):
         gallery_embeds.append(id_embendidng)
 
     return subject_ids,np.stack(gallery_embeds)
-
-def _openMax():
-    return

@@ -1,0 +1,45 @@
+# It contains all arguments for three baseline scripts. 
+# Also, it is possible to overwrite any parameter that is contained in a configuration file on the command line.
+
+data_directory: './'                               # Select the directory, where the UCCS files are stored (required)
+image_directory: 'validation_images'                   # Select the directory, where the images are stored (required)
+which_set: 'validation'                                # Select the dataset to use
+gpu: [0]                                               # GPU indice(s) to run the detector on it, otherwise cpu will be used
+
+baseline_detection:
+  thresholds: [0.2,0.2,0.2]                                 # Limits detections to those that have a prediction value higher than --threshold
+  results: 'results/UCCS-detection-baseline-%s.txt'         # Select the file to write the scores into
+  max_detections: 50                                        # Specify, how many detections per image should be stored
+  parallel: null                                            # If given, images will be processed with the given number of parallel processes
+
+baseline_recognition:                                      
+  detection_file: 'results/UCCS-detection-baseline-%s.txt'  # The .csv file containing the file names and landmarks that need to be extracted
+  result_dir: '%s_embeddings'                               # Which directory will be used for storing embeddings
+workers: 4                                                  # The number of data loading workers
+batch_size_perImg: 1                                        # For validation; it should be 1 because of the different number of faces in each image, for gallery; it is multiples of 10                                        
+embedding_size: 512                                         # The embedding feature size
+arch: 'iresnet100'                                          # The backbone model of MagFace
+
+eval:
+  task: ['scoring'] # scoring, detection, identification    # Choose the task(s)
+  exclude_gallery: 'exclude_gallery_valid.pickle'           # Select the file where gallery face IDs are stored to exclude them from the results
+  iou: 0.5                                                  # The overlap threshold for detected faces to be considered to be detected correctly
+  linear: False                                             # If selected, plots will be in linear, otherwise semilogx
+
+  scoring:                                                  # It generates a score file
+    gallery: 'gallery_embeddings'                           # Select the directory where the gallery embeddings are stored
+    probe: 'validation_embeddings'                          # Select the directory where the probe embeddings are stored
+    results: 'results/UCCS-scoring-baseline-%s-.txt'        # Save the score file as .txt file
+
+  detection:                                                # More detection/scoring files can be added to the list to compare them at the same plot. 
+    files: ['results/UCCS-detection-baseline-validation.txt']  # Get the file(s) containing the UCCS face detection results
+    labels: ["mtcnn"]                                       # Use these labels; if not given, the filenames will be used
+    froc: "results/UCCS_FROC.pdf"                           # The file where the FROC curve will be plotted into
+    plot_numbers: False                                     # If selected, the total number of detected faces will be shown (rather than percentages)
+
+  recognition:
+    files: ['results/UCCS-scoring-baseline-validation.txt'] # Get the file(s) with the UCCS face detection results
+    rank: 1                                                  # Plot DIR curves for the given rank
+    labels: ["MagFace"]                                      # Use these labels; if not given, the directory names will be used
+    oroc: 'results/UCCS-OROC.pdf'                            # The file where the O-ROC curve will be plotted into
+    plot_numbers: False                                      # If selected, the total number of recognized faces will be shown (rather than percentages)
