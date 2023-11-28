@@ -22,7 +22,7 @@ def read_configuration_file():
   
   args.baseline_detection.results = os.path.join(args.data_directory,args.baseline_detection.results)
 
-  if os.path.exists(os.path.dirname(args.baseline_detection.results)):
+  if not os.path.exists(os.path.dirname(args.baseline_detection.results)):
     os.mkdir(os.path.dirname(args.baseline_detection.results))
 
   return args
@@ -67,7 +67,7 @@ def main():
     pool.close()
     pool.join()
   
-  logger.info("Writing detections to file %s", )
+  logger.info("Writing detections to file %s",args.baseline_detection.results)
   save_detections(detections,args.baseline_detection.results)
 
 if __name__ == "__main__":
