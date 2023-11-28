@@ -17,6 +17,7 @@ def read_configuration_file():
 
   try:
     args.baseline_detection.results = args.baseline_detection.results % args.which_set
+    args.image_directory = args.image_directory % args.which_set
   except:
     pass
   
