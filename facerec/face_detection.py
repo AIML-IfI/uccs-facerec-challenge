@@ -35,7 +35,7 @@ def detect_faces(img_files,thresholds,max_detections,logger,gpu_index=None):
         bboxes, qualities,landmarks = [], [],[]
         logger.warning("No face was found for image %s", os.path.basename(img_file))
 
-      detections[img_file] = [(qualities[i],bboxes[i],landmarks[i]) for i in range(min(max_detections, len(qualities)))]
+      detections[os.path.basename(img_file)] = [(qualities[i],bboxes[i],landmarks[i]) for i in range(min(max_detections, len(qualities)))]
       
     except Exception as e:
       logger.error("File %s: error %s",img_file,e)
