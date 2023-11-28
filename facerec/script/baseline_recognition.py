@@ -20,6 +20,7 @@ def read_config_file():
 
     try:
         args.baseline_recognition.result_dir = args.baseline_recognition.result_dir % args.which_set
+        args.image_directory = args.image_directory % args.which_set
     except:
         pass
 
