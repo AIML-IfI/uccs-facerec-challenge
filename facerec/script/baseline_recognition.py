@@ -15,9 +15,14 @@ def read_config_file():
     args = yamlparser.config_parser()
     args.data_directory = os.path.abspath(args.data_directory)
 
-    if args.which_set != "gallery" and not args.baseline_recognition.detection_file:
-        raise ValueError ("For the validation set, --baseline_recognition.detection_file is required.")
-
+    if args.which_set != "gallery":
+        if not args.baseline_recognition.detection_file:
+            raise ValueError ("For the validation set, --baseline_recognition.detection_file is required.")
+        else:
+            try:
+                args.baseline_recognition.detection_file = args.baseline_recognition.detection_file % args.which_set
+            except:
+                pass
     try:
         args.baseline_recognition.result_dir = args.baseline_recognition.result_dir % args.which_set
         args.image_directory = args.image_directory % args.which_set
@@ -29,7 +34,7 @@ def read_config_file():
         os.mkdir(args.baseline_recognition.result_dir)
 
     return args
-
+    
 def main():
 
     # get command line arguments
