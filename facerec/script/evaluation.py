@@ -36,7 +36,7 @@ def read_config_file():
         except:
             pass
         
-    if 'recognition' in args.task :
+    if 'recognition' in args.eval.task :
         if args.eval.recognition.files is None:
             raise ValueError("For the identification task, --eval.recognition.files are required.")
 
@@ -111,7 +111,7 @@ def main():
         _ = create_score_file((subject_ids,gallery_enroll),probe_path,scoring_path)
 
     # plot o-roc for the identification results if it is given
-    if "identification" in args.eval.task:
+    if "recognition" in args.eval.task:
         
         known_numbers = sum([ sum(np.array(subject_ids) > 0) for _,subject_ids,_ in ground_truth.values()])
         if exclude:
