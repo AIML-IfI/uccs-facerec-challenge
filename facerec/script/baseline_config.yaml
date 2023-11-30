@@ -29,7 +29,7 @@ eval:
   scoring:                                                  # It generates a score file
     gallery: 'gallery_embeddings'                           # Select the directory where the gallery embeddings are stored
     probe: 'validation_embeddings'                          # Select the directory where the probe embeddings are stored
-    results: 'results/UCCS-scoring-baseline-%s-.txt'        # Save the score file as .txt file
+    results: 'results/UCCS-scoring-baseline-%s.txt'        # Save the score file as .txt file
 
   detection:                                                # More detection/scoring files can be added to the list to compare them at the same plot. 
     files: ['results/UCCS-detection-baseline-validation.txt']  # Get the file(s) containing the UCCS face detection results
