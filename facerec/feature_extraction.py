@@ -208,9 +208,10 @@ def build_model(args):
     """
     from .MagFace.inference.network_inf import builder_inf
 
+    model_args = args.baseline_recognition
     # magface requires cpu_mode argument
-    args.cpu_mode = not args.gpu
-    model = builder_inf(args)
+    model_args.cpu_mode = not args.gpu
+    model = builder_inf(model_args)
 
     device = torch.device(f"cuda:{args.gpu[0]}" if args.gpu else "cpu")
     model = model.to(device)
