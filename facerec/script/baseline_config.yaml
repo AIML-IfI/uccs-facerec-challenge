@@ -15,10 +15,10 @@ baseline_detection:
 baseline_recognition:                                      
   detection_file: 'results/UCCS-detection-baseline-%s.txt'  # The .csv file containing the file names and landmarks that need to be extracted
   result_dir: '%s_embeddings'                               # Which directory will be used for storing embeddings
-workers: 4                                                  # The number of data loading workers
-batch_size_perImg: 1                                        # For validation; it should be 1 because of the different number of faces in each image, for gallery; it is multiples of 10                                        
-embedding_size: 512                                         # The embedding feature size
-arch: 'iresnet100'                                          # The backbone model of MagFace
+  workers: 4                                                # The number of data loading workers
+  batch_size_perImg: 1                                      # For validation; it should be 1 because of the different number of faces in each image, for gallery; it is multiples of 10                                        
+  embedding_size: 512                                       # The embedding feature size
+  arch: 'iresnet100'                                        # The backbone model of MagFace
 
 eval:
   task: ['scoring'] # scoring, detection, identification    # Choose the task(s)
