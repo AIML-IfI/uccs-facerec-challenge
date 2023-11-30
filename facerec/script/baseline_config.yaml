@@ -1,8 +1,8 @@
 # It contains all arguments for three baseline scripts. 
 # Also, it is possible to overwrite any parameter that is contained in a configuration file on the command line.
 
-data_directory: '../'                     # Select the directory, where the UCCS files are stored (required)
-image_directory: '%s_images'                   # Select the directory, where the images are stored (required)
+data_directory: '../'                                  # Select the directory, where the UCCS files are stored (required)
+image_directory: '%s_images'                           # Select the directory, where the images are stored (required)
 which_set: 'validation'                                # Select the dataset to use
 gpu: [0]                                               # GPU indice(s) to run the detector on it, otherwise cpu will be used
 
