@@ -21,7 +21,7 @@ baseline_recognition:
   arch: 'iresnet100'                                        # The backbone model of MagFace
 
 eval:
-  task: ['scoring'] # scoring, detection, identification    # Choose the task(s)
+  task: ['scoring'] # scoring, detection, recognition       # Choose the task(s)
   exclude_gallery: 'exclude_gallery_valid.pickle'           # Select the file where gallery face IDs are stored to exclude them from the results
   iou: 0.5                                                  # The overlap threshold for detected faces to be considered to be detected correctly
   linear: False                                             # If selected, plots will be in linear, otherwise semilogx
