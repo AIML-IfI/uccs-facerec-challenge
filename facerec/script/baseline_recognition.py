@@ -62,7 +62,7 @@ def main():
 
     # get the data loader
     logger.info("Creating the %s dataloader", args.which_set)
-    inf_loader = inference_dataloader((img_paths,None,landmarks),
+    inf_loader,batch_size_perImg = inference_dataloader((img_paths,None,landmarks),
                                       args.which_set,args.baseline_recognition.batch_size_perImg,args.baseline_recognition.workers)
 
     # get the model in eval mode
@@ -75,7 +75,7 @@ def main():
         for _, (input, img_names) in tqdm(enumerate(inf_loader)):
             
             # when batch size = 1, to avoid extra dimension increased by dataloader
-            input = input[0] if args.baseline_recognition.batch_size_perImg == 1 else input
+            input = input[0] if batch_size_perImg == 1 else input
             
             # compute features
             input = input.to(device,dtype=torch.float)
@@ -84,7 +84,7 @@ def main():
             _feat = embedding_feat.data.cpu().numpy()
 
             # save all information (detection scores,bboxes,landmarks,embeddings) of that image/identity
-            _ = save_features_information(data,img_names,args.which_set,_feat,args.baseline_recognition.result_dir,args.baseline_recognition.batch_size_perImg)
+            _ = save_features_information(data,img_names,args.which_set,_feat,args.baseline_recognition.result_dir,batch_size_perImg)
 
 if __name__ == "__main__":
     main()
