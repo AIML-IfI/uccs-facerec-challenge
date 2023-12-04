@@ -4,13 +4,13 @@
 data_directory: '../'                                  # Select the directory, where the UCCS files are stored (required)
 image_directory: '%s_images'                           # Select the directory, where the images are stored (required)
 which_set: 'validation'                                # Select the dataset to use
-gpu: [0]                                               # GPU indice(s) to run the detector on it, otherwise cpu will be used
+gpu: [0]                                               # GPU indice(s) to run the detector on it, to run on cpu it should be given null (None)
 
 baseline_detection:
   thresholds: [0.2,0.2,0.2]                                 # Limits detections to those that have a prediction value higher than --threshold
   results: 'results/UCCS-detection-baseline-%s.txt'         # Select the file to write the scores into
   max_detections: 50                                        # Specify, how many detections per image should be stored
-  parallel: null                                            # If given, images will be processed with the given number of parallel processes
+  parallel: null                                            # If given as int, images will be processed with the given number of parallel processes
 
 baseline_recognition:                                      
   detection_file: 'results/UCCS-detection-baseline-%s.txt'  # The .csv file containing the file names and landmarks that need to be extracted
