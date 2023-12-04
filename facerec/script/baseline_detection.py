@@ -6,6 +6,7 @@ import os
 import multiprocessing
 from ..dataset import read_ground_truth
 from ..face_detection import detect_faces,save_detections
+from functools import partial
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("UCCS.FaceRec")
@@ -53,12 +54,12 @@ def main():
 
     pool = multiprocessing.Pool(args.baseline_detection.parallel)
 
-    arguments = (args.baseline_detection.thresholds,args.baseline_detection.max_detections,logger,gpu_index)
+    partial_detect_faces = partial(detect_faces,thresholds=args.baseline_detection.thresholds,max_detections=args.baseline_detection.max_detections,logger=logger)
     # Split image names into chunks for parallel processing
-    chunks = [([d for i, d in enumerate(img_files) if i % args.baseline_detection.parallel == p], ) + arguments for p in range(args.baseline_detection.parallel)]
+    chunks = [([d for i, d in enumerate(img_files) if i % args.baseline_detection.parallel == p]) for p in range(args.baseline_detection.parallel)]
 
     # Perform parallel processing
-    results = pool.map(detect_faces, chunks)
+    results = pool.map(partial_detect_faces, chunks)
 
     # Combine the results from all processes
     detections = {}
