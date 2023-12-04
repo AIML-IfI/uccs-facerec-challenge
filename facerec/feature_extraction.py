@@ -180,7 +180,7 @@ def inference_dataloader(data,which_set,batch_size_perImg,workers):
 
     if which_set=="gallery":
         # each gallery identity has 10 samples, embeddings will be saved based on the identity
-        batch_size_perImg = (batch_size_perImg // 10) * 10
+        batch_size_perImg = 10 if batch_size_perImg<10 else (batch_size_perImg // 10) * 10
     else:
         # each image has different number of faces to be extracted, embeddings will be saved based on the image
         batch_size_perImg = 1
@@ -200,7 +200,7 @@ def inference_dataloader(data,which_set,batch_size_perImg,workers):
         pin_memory=True,
         shuffle=False)
 
-    return inf_loader
+    return inf_loader,batch_size_perImg
 
 def build_model(args):
     """
