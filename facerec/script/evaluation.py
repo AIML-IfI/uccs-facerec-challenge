@@ -3,6 +3,7 @@
 # But arguments that are below the interested section should be given
 import logging
 import yamlparser
+import argparse
 import os
 import pickle
 import numpy as np
@@ -15,129 +16,133 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger("FaceRec.UCCS")
 
 def read_config_file():
-    args = yamlparser.config_parser()
-    args.data_directory = os.path.abspath(args.data_directory)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--tasks", "-t",
+        choices = ["scoring", "detection", "recognition"],
+        default = ["scoring", "detection", "recognition"],
+        help = "Select the tasks that should be performed in this evaluation"
+    )
 
-    if 'detection' in args.eval.task:
-        if args.eval.detection.files is None:
+    cfg = yamlparser.config_parser(parser=parser)
+
+    if 'detection' in cfg.eval.task:
+        if cfg.eval.detection.files is None:
             raise ValueError("For the detection task, --eval.detection.files are required.")
 
-        if args.eval.detection.labels is None:
-            args.eval.detection.labels = args.eval.detection.files
+        if cfg.eval.detection.labels is None:
+            cfg.eval.detection.labels = cfg.eval.detection.files
 
-        if len(args.eval.detection.labels) != len(args.eval.detection.files):
-            raise ValueError("The number of labels (%d) and results (%d) differ" % (len(args.eval.detection.labels), len(args.eval.detection.files)))
-    
-    if 'scoring' in args.eval.task:
-        if (args.eval.scoring.gallery is None or args.eval.scoring.probe is None):
-            raise ValueError("For the scoring task, both --eval.scoring.gallery and --eval.scoring.probe are required.")
-        try:
-            args.eval.scoring.results = args.eval.scoring.results % args.which_set
-        except:
-            pass
-        
-    if 'recognition' in args.eval.task :
-        if args.eval.recognition.files is None:
+        if len(cfg.eval.detection.labels) != len(cfg.eval.detection.files):
+            raise ValueError("The number of labels (%d) and results (%d) differ" % (len(cfg.eval.detection.labels), len(cfg.eval.detection.files)))
+
+    if 'recognition' in cfg.eval.task :
+        if cfg.eval.recognition.files is None:
             raise ValueError("For the identification task, --eval.recognition.files are required.")
 
-        if args.eval.recognition.labels is None:
-            args.eval.recognition.labels = args.eval.recognition.files
-    
-        if len(args.eval.recognition.labels) != len(args.eval.recognition.files):
-            raise ValueError("The number of labels (%d) and results (%d) differ" % (len(args.eval.recognition.labels), len(args.eval.recognition.labels)))
-    
-    return args
+        if cfg.eval.recognition.labels is None:
+            cfg.eval.recognition.labels = cfg.eval.recognition.files
+
+        if len(cfg.eval.recognition.labels) != len(cfg.eval.recognition.files):
+            raise ValueError("The number of labels (%d) and results (%d) differ" % (len(cfg.eval.recognition.labels), len(cfg.eval.recognition.labels)))
+
+    if 'scoring' in cfg.eval.task:
+        if (cfg.eval.scoring.gallery is None or cfg.eval.scoring.probe is None):
+            raise ValueError("For the scoring task, both --eval.scoring.gallery and --eval.scoring.probe are required.")
+
+    return cfg
 
 def main():
-  
+
     # get command line arguments
-    args = read_config_file()
+    cfg = read_config_file()
 
     # load the evaluation protocol
-    logger.info("Loading UCCS %s evaluation protocol",args.which_set)
+    logger.info("Loading UCCS %s evaluation protocol",cfg.which_set)
 
     #read detections based on the task (detection/identification)
-    if "detection" in args.eval.task or "identification" in args.eval.task:
+    if "detection" in cfg.eval.task or "recognition" in cfg.eval.task:
         # read the ground truth bounding boxes of the validation set
-        logger.info("Reading UCCS %s ground-truth from the protocol",args.which_set)
-        ground_truth = read_ground_truth(args.data_directory,args.which_set)
+        logger.info("Reading UCCS %s ground-truth from the protocol",cfg.which_set)
+        ground_truth = read_ground_truth(cfg.data_directory,cfg.which_set)
 
-        face_numbers = sum([ len(face_ids) for face_ids,_,_ in ground_truth.values()])
+        face_numbers = sum([len(face_ids) for face_ids,_,_ in ground_truth.values()])
         image_numbers = len(ground_truth)
 
-        if args.eval.exclude_gallery is not None:
-            with open(os.path.join(args.data_directory,args.eval.exclude_gallery), 'rb') as file:
+        if cfg.eval.exclude_gallery is not None:
+            with open(cfg.format(cfg.eval.exclude_gallery), 'rb') as file:
                 exclude = pickle.load(file)
             # update the number of faces in the set
             face_numbers -= len(exclude)
 
     # plot f-roc for the detection results if it is given
-    if  "detection" in args.eval.task:
+    if  "detection" in cfg.eval.task:
 
         detection_results = []
 
-        for idx,detection_file in enumerate(args.eval.detection.files):
+        for idx,detection_file in enumerate(cfg.format(cfg.eval.detection.files)):
 
-            logger.info("Reading detections from %s (%s)", detection_file, args.eval.detection.labels[idx])
-            detections = read_detections(os.path.join(args.data_directory,detection_file))
+            detection_file = cfg.format(detection_file)
+            logger.info("Reading detections from %s (%s)", detection_file, cfg.eval.detection.labels[idx])
+            detections = read_detections(detection_file)
 
-            matched_detections = assign_detections(ground_truth,detections,args.eval.iou,exclude)
+            matched_detections = assign_detections(ground_truth,detections,cfg.eval.iou,exclude)
 
-            logger.info("Computing DR and FDPI for %s (%s)", detection_file, args.eval.detection.labels[idx])
-            DR,FDPI = compute_DR_FDPI(matched_detections,face_numbers,image_numbers,args.eval.detection.plot_numbers)
+            logger.info("Computing DR and FDPI for %s (%s)", detection_file, cfg.eval.detection.labels[idx])
+            DR,FDPI = compute_DR_FDPI(matched_detections,face_numbers,image_numbers,cfg.eval.detection.plot_numbers)
 
             detection_results.append((DR,FDPI))
 
         # plotting
-        logger.info("Plotting F-ROC curve(s) to file '%s'", args.eval.detection.froc)
-        froc_path = os.path.join(args.data_directory,args.eval.detection.froc)
-        plot_froc_curve(detection_results,args.eval.detection.labels,froc_path,
-                                 face_numbers,args.eval.linear,args.eval.detection.plot_numbers)
-        
+        froc_path = cfg.format(cfg.eval.detection.froc)
+        logger.info("Plotting F-ROC curve(s) to file '%s'", froc_path)
+        plot_froc_curve(detection_results,cfg.eval.detection.labels,froc_path,
+                                 face_numbers,cfg.eval.linear,cfg.eval.detection.plot_numbers)
+
     # create score file if it is given
-    if "scoring" in args.eval.task:
-        logger.info("Loading UCCS %s scoring protocol",args.which_set)
+    if "scoring" in cfg.eval.task:
+        logger.info("Loading UCCS %s scoring protocol",cfg.which_set)
         # get gallery enrollment
         logger.info("Getting UCCS gallery enrollment (average)")
-        gallery_embedd_path = os.path.join(args.data_directory,args.eval.scoring.gallery)
+        gallery_embedd_path = cfg.format(cfg.eval.scoring.gallery)
         subject_ids,gallery_enroll = average(gallery_embedd_path)
 
         subject_ids = ["S_"+i for i in subject_ids]
 
         # compute scores between enrollment and probe and write them into a file
-        probe_path = os.path.join(args.data_directory,args.eval.scoring.probe)
-        scoring_path = os.path.join(args.data_directory,args.eval.scoring.results)
-        logger.info("Computing scores and writing them into %s",args.eval.scoring.results)
+        probe_path = cfg.format(cfg.eval.scoring.probe)
+        scoring_path = cfg.format(cfg.eval.scoring.results)
+        logger.info("Computing scores and writing them into %s",scoring_path)
         _ = create_score_file((subject_ids,gallery_enroll),probe_path,scoring_path)
 
     # plot o-roc for the identification results if it is given
-    if "recognition" in args.eval.task:
-        
+    if "recognition" in cfg.eval.task:
+
         known_numbers = sum([ sum(np.array(subject_ids) > 0) for _,subject_ids,_ in ground_truth.values()])
         if exclude:
             known_numbers -= len(exclude)
 
         recognition_results = []
 
-        for idx, score_file in enumerate(args.eval.recognition.files):
-            logger.info("Reading scores from %s (%s)", score_file, args.eval.recognition.files[idx])
-            scoring_path = os.path.join(args.data_directory,score_file) 
-            all_scores = read_recognitions(scoring_path)
+        for idx, score_file in enumerate(cfg.format(cfg.eval.recognition.files)):
+            score_file = cfg.format(score_file)
+            logger.info("Reading scores from %s (%s)", score_file, cfg.eval.recognition.files[idx])
+            all_scores = read_recognitions(score_file)
 
-            matched_detections = assign_detections(ground_truth,all_scores,args.eval.iou,exclude)
+            matched_detections = assign_detections(ground_truth,all_scores,cfg.eval.iou,exclude)
 
-            logger.info("Computing TPIR and FPIPI for %s (%s)", score_file, args.eval.recognition.labels[idx])
+            logger.info("Computing TPIR and FPIPI for %s (%s)", score_file, cfg.eval.recognition.labels[idx])
             TPIR,FPIPI = compute_TPIR_FPIPI(all_scores,matched_detections,known_numbers,image_numbers,
-                                                    args.eval.recognition.rank,args.eval.recognition.plot_numbers)
+                                                    cfg.eval.recognition.rank,cfg.eval.recognition.plot_numbers)
 
             recognition_results.append((TPIR,FPIPI))
 
         # plotting
-        logger.info("Plotting O-ROC curve(s) to file '%s'", args.eval.recognition.oroc)
-        oroc_path = os.path.join(args.data_directory,args.eval.recognition.oroc)
-        plot_oroc_curve(recognition_results,args.eval.recognition.labels,args.eval.recognition.rank,oroc_path,
-                                 known_numbers,linear=args.eval.linear,
-                                 plot_recognition_numbers=args.eval.recognition.plot_numbers)
-        
+        oroc_path = cfg.format(cfg.eval.recognition.oroc)
+        logger.info("Plotting O-ROC curve(s) to file '%s'", oroc_path)
+        plot_oroc_curve(recognition_results,cfg.eval.recognition.labels,cfg.eval.recognition.rank,oroc_path,
+                                 known_numbers,linear=cfg.eval.linear,
+                                 plot_recognition_numbers=cfg.eval.recognition.plot_numbers)
+
 if __name__ == "__main__":
     main()
