@@ -12,7 +12,7 @@ logger = logging.getLogger("FaceRec.UCCS")
 
 def read_config_file():
 
-    cfg = yamlparser.config_parser(default_config_files=[os.path.join(os.path.dirname(__file__), "baseline_config-yaml")])
+    cfg = yamlparser.config_parser(default_config_files=[os.path.join(os.path.dirname(__file__), "baseline_config.yaml")])
 
     if cfg.which_set != "gallery":
         if not cfg.recognition.detection_file:

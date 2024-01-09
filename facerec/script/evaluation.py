@@ -25,7 +25,7 @@ def read_config_file():
         help = "Select the tasks that should be performed in this evaluation"
     )
 
-    cfg = yamlparser.config_parser(parser=parser,default_config_files=[os.path.join(os.path.dirname(__file__), "baseline_config-yaml")])
+    cfg = yamlparser.config_parser(parser=parser,default_config_files=[os.path.join(os.path.dirname(__file__), "baseline_config.yaml")])
 
     if 'detection' in cfg.tasks:
         if cfg.eval.detection.files is None:
