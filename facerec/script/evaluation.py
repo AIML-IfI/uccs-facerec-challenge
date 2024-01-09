@@ -19,14 +19,15 @@ def read_config_file():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--tasks", "-t",
+        nargs = "+",
         choices = ["scoring", "detection", "recognition"],
         default = ["scoring", "detection", "recognition"],
         help = "Select the tasks that should be performed in this evaluation"
     )
 
-    cfg = yamlparser.config_parser(parser=parser)
+    cfg = yamlparser.config_parser(parser=parser,default_config_files=[os.path.join(os.path.dirname(__file__), "baseline_config-yaml")])
 
-    if 'detection' in cfg.eval.task:
+    if 'detection' in cfg.tasks:
         if cfg.eval.detection.files is None:
             raise ValueError("For the detection task, --eval.detection.files are required.")
 
@@ -36,7 +37,7 @@ def read_config_file():
         if len(cfg.eval.detection.labels) != len(cfg.eval.detection.files):
             raise ValueError("The number of labels (%d) and results (%d) differ" % (len(cfg.eval.detection.labels), len(cfg.eval.detection.files)))
 
-    if 'recognition' in cfg.eval.task :
+    if 'recognition' in cfg.tasks:
         if cfg.eval.recognition.files is None:
             raise ValueError("For the identification task, --eval.recognition.files are required.")
 
@@ -46,7 +47,7 @@ def read_config_file():
         if len(cfg.eval.recognition.labels) != len(cfg.eval.recognition.files):
             raise ValueError("The number of labels (%d) and results (%d) differ" % (len(cfg.eval.recognition.labels), len(cfg.eval.recognition.labels)))
 
-    if 'scoring' in cfg.eval.task:
+    if 'scoring' in cfg.tasks:
         if (cfg.eval.scoring.gallery is None or cfg.eval.scoring.probe is None):
             raise ValueError("For the scoring task, both --eval.scoring.gallery and --eval.scoring.probe are required.")
 
@@ -61,7 +62,7 @@ def main():
     logger.info("Loading UCCS %s evaluation protocol",cfg.which_set)
 
     #read detections based on the task (detection/identification)
-    if "detection" in cfg.eval.task or "recognition" in cfg.eval.task:
+    if "detection" in cfg.tasks or "recognition" in cfg.tasks:
         # read the ground truth bounding boxes of the validation set
         logger.info("Reading UCCS %s ground-truth from the protocol",cfg.which_set)
         ground_truth = read_ground_truth(cfg.data_directory,cfg.which_set)
@@ -76,7 +77,7 @@ def main():
             face_numbers -= len(exclude)
 
     # plot f-roc for the detection results if it is given
-    if  "detection" in cfg.eval.task:
+    if  "detection" in cfg.tasks:
 
         detection_results = []
 
@@ -100,7 +101,7 @@ def main():
                                  face_numbers,cfg.eval.linear,cfg.eval.detection.plot_numbers)
 
     # create score file if it is given
-    if "scoring" in cfg.eval.task:
+    if "scoring" in cfg.tasks:
         logger.info("Loading UCCS %s scoring protocol",cfg.which_set)
         # get gallery enrollment
         logger.info("Getting UCCS gallery enrollment (average)")
@@ -116,7 +117,7 @@ def main():
         _ = create_score_file((subject_ids,gallery_enroll),probe_path,scoring_path)
 
     # plot o-roc for the identification results if it is given
-    if "recognition" in cfg.eval.task:
+    if "recognition" in cfg.tasks:
 
         known_numbers = sum([ sum(np.array(subject_ids) > 0) for _,subject_ids,_ in ground_truth.values()])
         if exclude:
@@ -125,8 +126,7 @@ def main():
         recognition_results = []
 
         for idx, score_file in enumerate(cfg.format(cfg.eval.recognition.files)):
-            score_file = cfg.format(score_file)
-            logger.info("Reading scores from %s (%s)", score_file, cfg.eval.recognition.files[idx])
+            logger.info("Reading scores from %s (%s)", score_file, cfg.eval.recognition.labels[idx])
             all_scores = read_recognitions(score_file)
 
             matched_detections = assign_detections(ground_truth,all_scores,cfg.eval.iou,exclude)

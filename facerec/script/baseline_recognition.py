@@ -12,7 +12,7 @@ logger = logging.getLogger("FaceRec.UCCS")
 
 def read_config_file():
 
-    cfg = yamlparser.config_parser()
+    cfg = yamlparser.config_parser(default_config_files=[os.path.join(os.path.dirname(__file__), "baseline_config-yaml")])
 
     if cfg.which_set != "gallery":
         if not cfg.recognition.detection_file:
@@ -58,10 +58,13 @@ def main():
     logger.info("Loading the baseline model")
     model,device = build_model(cfg)
 
+    result_dir = cfg.format(cfg.recognition.result_dir)
+    os.makedirs(result_dir, exist_ok=True)
+
     logger.info("Starting the inference process")
     with torch.no_grad():
 
-        for _, (input, img_names) in tqdm(enumerate(inf_loader)):
+        for input, img_names in tqdm(inf_loader):
 
             # when batch size = 1, to avoid extra dimension increased by dataloader
             input = input[0] if batch_size_perImg == 1 else input
@@ -73,7 +76,7 @@ def main():
             _feat = embedding_feat.data.cpu().numpy()
 
             # save all information (detection scores,bboxes,landmarks,embeddings) of that image/identity
-            _ = save_features_information(data,img_names,cfg.which_set,_feat,cfg.format(cfg.recognition.result_dir),batch_size_perImg)
+            _ = save_features_information(data,img_names,cfg.which_set,_feat,result_dir,batch_size_perImg)
 
 if __name__ == "__main__":
     main()

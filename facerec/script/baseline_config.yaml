@@ -11,7 +11,7 @@ detection:
   thresholds: [0.2,0.2,0.2]                                 # Limits detections to those that have a prediction value higher than --threshold
   results: '{result_directory}/UCCS-detection-baseline-{which_set}.txt'         # Select the file to write the scores into
   max_detections: 50                                        # Specify, how many detections per image should be stored
-  parallel: null                                            # If given as int, images will be processed with the given number of parallel processes
+  parallel: 0                                               # If given as int, images will be processed with the given number of parallel processes
 
 recognition:
   detection_file: '{result_directory}/UCCS-detection-baseline-{which_set}.txt'  # The .csv file containing the file names and landmarks that need to be extracted
@@ -20,6 +20,7 @@ recognition:
   batch_size_perImg: 1                                      # For validation; it should be 1 because of the different number of faces in each image, for gallery; it is multiples of 10
   embedding_size: 512                                       # The embedding feature size
   arch: 'iresnet100'                                        # The backbone model of MagFace
+  resume: 'facerec/MagFace/magface_epoch_00025.pth'
 
 eval:
   exclude_gallery: '{data_directory}/exclude_gallery_valid.pickle'           # Select the file where gallery face IDs are stored to exclude them from the results
@@ -34,7 +35,7 @@ eval:
   detection:                                                # More detection/scoring files can be added to the list to compare them at the same plot.
     files: ['{result_directory}/UCCS-detection-baseline-{which_set}.txt']  # Get the file(s) containing the UCCS face detection results
     labels: ["mtcnn"]                                       # Use these labels; if not given, the filenames will be used
-    froc: "{result_directory}/UCCS_FROC-{which_set}.pdf"    # The file where the FROC curve will be plotted into
+    froc: "{result_directory}/UCCS-FROC-{which_set}.pdf"    # The file where the FROC curve will be plotted into
     plot_numbers: False                                     # If selected, the total number of detected faces will be shown (rather than percentages)
 
   recognition:

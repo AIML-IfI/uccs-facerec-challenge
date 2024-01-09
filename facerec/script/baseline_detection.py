@@ -13,7 +13,7 @@ logger = logging.getLogger("UCCS.FaceRec")
 
 def read_configuration_file():
 
-  cfg = yamlparser.config_parser()
+  cfg = yamlparser.config_parser(default_config_files=[os.path.join(os.path.dirname(__file__), "baseline_config-yaml")])
 
   if not os.path.exists(cfg.result_directory):
     os.mkdir(cfg.result_directory)
@@ -35,7 +35,7 @@ def main():
   image_directory = cfg.format(cfg.image_directory)
   img_files = [os.path.join(image_directory,img_name) for img_name in img_names]
 
-  if cfg.detection.parallel is None or cfg.gpu:
+  if cfg.detection.parallel == 0:
     logger.info("Detecting faces in %d images sequentially",len(img_names))
     detections = detect_faces(img_files,cfg.detection.thresholds,cfg.detection.max_detections,logger,cfg.gpu)
 
@@ -45,7 +45,7 @@ def main():
 
     pool = multiprocessing.Pool(cfg.detection.parallel)
 
-    partial_detect_faces = partial(detect_faces,thresholds=cfg.detection.thresholds,max_detections=cfg.detection.max_detections,logger=logger)
+    partial_detect_faces = partial(detect_faces,thresholds=cfg.detection.thresholds,max_detections=cfg.detection.max_detections,logger=logger,gpu_index=cfg.gpu)
     # Split image names into chunks for parallel processing
     chunks = [([d for i, d in enumerate(img_files) if i % cfg.detection.parallel == p]) for p in range(cfg.detection.parallel)]
 

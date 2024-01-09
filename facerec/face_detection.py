@@ -36,10 +36,10 @@ def detect_faces(img_files,thresholds,max_detections,logger,gpu_index=None):
         logger.warning("No face was found for image %s", os.path.basename(img_file))
 
       detections[os.path.basename(img_file)] = [(qualities[i],bboxes[i],landmarks[i]) for i in range(min(max_detections, len(qualities)))]
-      
+
     except Exception as e:
       logger.error("File %s: error %s",img_file,e)
-  
+
   return detections
 
 
@@ -47,7 +47,7 @@ def save_detections(detections,saving_path):
   """
   This writes all detection results to specified file.
   """
-  
+
   with open(saving_path, "w") as f:
 
     f.write("FILE,DETECTION_SCORE,BB_X,BB_Y,BB_WIDTH,BB_HEIGHT,REYE_X,REYE_Y,LEYE_X,LEYE_Y,NOSE_X,NOSE_Y,RMOUTH_X,RMOUTH_Y,LMOUTH_X,LMOUTH_Y\n")
