@@ -20,7 +20,6 @@ recognition:
   batch_size_perImg: 1                                      # For validation; it should be 1 because of the different number of faces in each image, for gallery; it is multiples of 10
   embedding_size: 512                                       # The embedding feature size
   arch: 'iresnet100'                                        # The backbone model of MagFace
-  resume: 'facerec/MagFace/magface_epoch_00025.pth'
 
 eval:
   exclude_gallery: '{data_directory}/exclude_gallery_valid.pickle'           # Select the file where gallery face IDs are stored to exclude them from the results

@@ -35,13 +35,13 @@ def main():
     if cfg.which_set =="gallery":
         data = read_ground_truth(cfg.data_directory,"gallery")
     else:
-        data = read_detections(cfg.format(cfg.recognition.detection_file))
+        data = read_detections(cfg.recognition.detection_file)
 
     landmarks = [l for _,_,l in data.values()]
     img_files = list(data.keys())
 
     # create the path of images, it differs based on the protocol because the gallery has sub-directories
-    image_directory = cfg.format(cfg.image_directory)
+    image_directory = cfg.image_directory
     img_paths = [os.path.join(image_directory,file.split("_")[0],file) for file in img_files] if cfg.which_set == "gallery"  else [
         os.path.join(image_directory,file) for file in img_files]
 
@@ -58,7 +58,7 @@ def main():
     logger.info("Loading the baseline model")
     model,device = build_model(cfg)
 
-    result_dir = cfg.format(cfg.recognition.result_dir)
+    result_dir = cfg.recognition.result_dir
     os.makedirs(result_dir, exist_ok=True)
 
     logger.info("Starting the inference process")

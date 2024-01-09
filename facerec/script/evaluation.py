@@ -71,7 +71,7 @@ def main():
         image_numbers = len(ground_truth)
 
         if cfg.eval.exclude_gallery is not None:
-            with open(cfg.format(cfg.eval.exclude_gallery), 'rb') as file:
+            with open(cfg.eval.exclude_gallery, 'rb') as file:
                 exclude = pickle.load(file)
             # update the number of faces in the set
             face_numbers -= len(exclude)
@@ -81,9 +81,8 @@ def main():
 
         detection_results = []
 
-        for idx,detection_file in enumerate(cfg.format(cfg.eval.detection.files)):
+        for idx,detection_file in enumerate(cfg.eval.detection.files):
 
-            detection_file = cfg.format(detection_file)
             logger.info("Reading detections from %s (%s)", detection_file, cfg.eval.detection.labels[idx])
             detections = read_detections(detection_file)
 
@@ -95,7 +94,7 @@ def main():
             detection_results.append((DR,FDPI))
 
         # plotting
-        froc_path = cfg.format(cfg.eval.detection.froc)
+        froc_path = cfg.eval.detection.froc
         logger.info("Plotting F-ROC curve(s) to file '%s'", froc_path)
         plot_froc_curve(detection_results,cfg.eval.detection.labels,froc_path,
                                  face_numbers,cfg.eval.linear,cfg.eval.detection.plot_numbers)
@@ -105,14 +104,14 @@ def main():
         logger.info("Loading UCCS %s scoring protocol",cfg.which_set)
         # get gallery enrollment
         logger.info("Getting UCCS gallery enrollment (average)")
-        gallery_embedd_path = cfg.format(cfg.eval.scoring.gallery)
+        gallery_embedd_path = cfg.eval.scoring.gallery
         subject_ids,gallery_enroll = average(gallery_embedd_path)
 
         subject_ids = ["S_"+i for i in subject_ids]
 
         # compute scores between enrollment and probe and write them into a file
-        probe_path = cfg.format(cfg.eval.scoring.probe)
-        scoring_path = cfg.format(cfg.eval.scoring.results)
+        probe_path = cfg.eval.scoring.probe
+        scoring_path = cfg.eval.scoring.results
         logger.info("Computing scores and writing them into %s",scoring_path)
         _ = create_score_file((subject_ids,gallery_enroll),probe_path,scoring_path)
 
@@ -125,7 +124,7 @@ def main():
 
         recognition_results = []
 
-        for idx, score_file in enumerate(cfg.format(cfg.eval.recognition.files)):
+        for idx, score_file in enumerate(cfg.eval.recognition.files):
             logger.info("Reading scores from %s (%s)", score_file, cfg.eval.recognition.labels[idx])
             all_scores = read_recognitions(score_file)
 
@@ -138,7 +137,7 @@ def main():
             recognition_results.append((TPIR,FPIPI))
 
         # plotting
-        oroc_path = cfg.format(cfg.eval.recognition.oroc)
+        oroc_path = cfg.eval.recognition.oroc
         logger.info("Plotting O-ROC curve(s) to file '%s'", oroc_path)
         plot_oroc_curve(recognition_results,cfg.eval.recognition.labels,cfg.eval.recognition.rank,oroc_path,
                                  known_numbers,linear=cfg.eval.linear,

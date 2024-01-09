@@ -32,7 +32,7 @@ def main():
   img_names = sorted(data.keys())
 
   # get the paths of images
-  image_directory = cfg.format(cfg.image_directory)
+  image_directory = cfg.image_directory
   img_files = [os.path.join(image_directory,img_name) for img_name in img_names]
 
   if cfg.detection.parallel == 0:
@@ -60,7 +60,7 @@ def main():
     pool.close()
     pool.join()
 
-  result_file = cfg.format(cfg.detection.results)
+  result_file = cfg.detection.results
   logger.info("Writing detections to file %s", result_file)
   save_detections(detections, result_file)
 

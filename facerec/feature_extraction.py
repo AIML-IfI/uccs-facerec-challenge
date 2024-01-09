@@ -51,7 +51,8 @@ def download_MagFace(args,logger):
 
     # append MagFace module
     sys.path.append(magFace_directory)
-    args.baseline_recognition.resume = weights_path
+    args.recognition.unfreeze()
+    args.recognition.resume = weights_path
 
 class ImgData(data.Dataset):
     """
