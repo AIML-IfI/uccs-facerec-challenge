@@ -113,7 +113,7 @@ def main():
         probe_path = cfg.eval.scoring.probe
         scoring_path = cfg.eval.scoring.results
         logger.info("Computing scores and writing them into %s",scoring_path)
-        _ = create_score_file((subject_ids,gallery_enroll),probe_path,scoring_path)
+        _ = create_score_file((subject_ids,gallery_enroll),probe_path,scoring_path,cfg.gpu)
 
     # plot o-roc for the identification results if it is given
     if "recognition" in cfg.tasks:

@@ -1,22 +1,42 @@
 # this file contains functionality to compute similarity scores between enrolled templates and probe features, and to handle score files
 import numpy as np
 import os
+import torch
 from torch import load
 
-def cosine(x, y):
+def cosine(x,y, gpu_index=None):
     """
-    It calculates the pairwise cosine similarity scores
+    It calculates the pairwise cosine similarity scores using PyTorch.
+    Supports GPU usage.
+
+    args:
+        x: the matrix of probes (N,512)
+        y: the matrix of all gallery templates (M,512)
+        gpu_index: indice of the gpu to be used, for cpu it should be given 'None'
     """
-    # Normalize x and y along axis 1
-    x = x / np.linalg.norm(x, axis=1, keepdims=True)
-    y = y / np.linalg.norm(y, axis=1, keepdims=True)
+    # Determine the device (CPU or GPU)
+    device = torch.device("cuda:{}".format(gpu_index) if gpu_index is not None and torch.cuda.is_available() else "cpu")
 
-    # Compute the cosine similarity using NumPy einsum
-    similarity = np.einsum("nc,ck->nk", x, y.T)
+    # Normalize gallery templates once and store it in a closure
+    def normalize_y_once(y):
+        y = torch.tensor(y, dtype=torch.float32, device=device)
+        return torch.nn.functional.normalize(y, p=2, dim=1)
 
-    return similarity
+    if not hasattr(cosine, 'y_norm'):
+        cosine.y = normalize_y_once(y)
 
-def create_score_file(enrollment,probe_path,result_file):
+    # Convert input array x to PyTorch tensor and move it to the specified device
+    x = torch.tensor(x, dtype=torch.float32, device=device)
+
+    # Normalize x along axis 1
+    x = torch.nn.functional.normalize(x, p=2, dim=1)
+
+    # Compute the cosine similarity using PyTorch matmul
+    similarity = torch.matmul(x, cosine.y.t())
+
+    return similarity.cpu().numpy() if gpu_index is not None else similarity.numpy()
+
+def create_score_file(enrollment,probe_path,result_file,gpu_index = None):
     """
     It writes the scores between enrollment and probe to the result file
     """
@@ -35,7 +55,7 @@ def create_score_file(enrollment,probe_path,result_file):
             probe_embeddings = probe_infos["embeddings"]
 
             #cosine similarity scores
-            cos_sim = np.round(cosine(probe_embeddings,gallery_enroll),4)
+            cos_sim = cosine(probe_embeddings,gallery_enroll,gpu_index)
 
             for ind in range(len(cos_sim)):
                 
