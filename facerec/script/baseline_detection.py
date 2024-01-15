@@ -1,4 +1,4 @@
-# This file contains a script to run the MTCNN (baseline face detector) on the validation and test set images, 
+# This file contains a script to run the MTCNN (baseline face detector) on the validation and test set images,
 # and writes them into a file
 import yamlparser
 import logging
@@ -13,50 +13,41 @@ logger = logging.getLogger("UCCS.FaceRec")
 
 def read_configuration_file():
 
-  args = yamlparser.config_parser()
-  args.data_directory = os.path.abspath(args.data_directory)
+  cfg = yamlparser.config_parser(default_config_files=[os.path.join(os.path.dirname(__file__), "baseline_config.yaml")])
 
-  try:
-    args.baseline_detection.results = args.baseline_detection.results % args.which_set
-    args.image_directory = args.image_directory % args.which_set
-  except:
-    pass
-  
-  args.baseline_detection.results = os.path.join(args.data_directory,args.baseline_detection.results)
+  if not os.path.exists(cfg.result_directory):
+    os.mkdir(cfg.result_directory)
 
-  if not os.path.exists(os.path.dirname(args.baseline_detection.results)):
-    os.mkdir(os.path.dirname(args.baseline_detection.results))
+  return cfg
 
-  return args
 
 def main():
-  
+
   # get command line arguments
-  args = read_configuration_file()
+  cfg = read_configuration_file()
 
   # load detection protocol
-  logger.info("Loading UCCS %s detection protocol", args.which_set)
-  data = read_ground_truth(args.data_directory,args.which_set)
+  logger.info("Loading UCCS %s detection protocol", cfg.which_set)
+  data = read_ground_truth(cfg.data_directory,cfg.which_set)
   img_names = sorted(data.keys())
 
   # get the paths of images
-  img_files = [os.path.join(args.data_directory,args.image_directory,img_name) for img_name in img_names]
-  # if not given, it will be run on cpu
-  gpu_index = args.gpu[0] if args.gpu else None   
+  image_directory = cfg.image_directory
+  img_files = [os.path.join(image_directory,img_name) for img_name in img_names]
 
-  if args.baseline_detection.parallel is None or args.gpu:
+  if cfg.detection.parallel == 0:
     logger.info("Detecting faces in %d images sequentially",len(img_names))
-    detections = detect_faces(img_files,args.baseline_detection.thresholds,args.baseline_detection.max_detections,logger,gpu_index)
-    
+    detections = detect_faces(img_files,cfg.detection.thresholds,cfg.detection.max_detections,logger,cfg.gpu)
+
   else:
     # parallelization; split data into chunks
-    logger.info("Detecting faces in %d images using %d parallel processes", len(img_names), args.baseline_detection.parallel)
+    logger.info("Detecting faces in %d images using %d parallel processes", len(img_names), cfg.detection.parallel)
 
-    pool = multiprocessing.Pool(args.baseline_detection.parallel)
+    pool = multiprocessing.Pool(cfg.detection.parallel)
 
-    partial_detect_faces = partial(detect_faces,thresholds=args.baseline_detection.thresholds,max_detections=args.baseline_detection.max_detections,logger=logger)
+    partial_detect_faces = partial(detect_faces,thresholds=cfg.detection.thresholds,max_detections=cfg.detection.max_detections,logger=logger,gpu_index=cfg.gpu)
     # Split image names into chunks for parallel processing
-    chunks = [([d for i, d in enumerate(img_files) if i % args.baseline_detection.parallel == p]) for p in range(args.baseline_detection.parallel)]
+    chunks = [([d for i, d in enumerate(img_files) if i % cfg.detection.parallel == p]) for p in range(cfg.detection.parallel)]
 
     # Perform parallel processing
     results = pool.map(partial_detect_faces, chunks)
@@ -68,10 +59,10 @@ def main():
 
     pool.close()
     pool.join()
-  
-  logger.info("Writing detections to file %s",args.baseline_detection.results)
-  save_detections(detections,args.baseline_detection.results)
+
+  result_file = cfg.detection.results
+  logger.info("Writing detections to file %s", result_file)
+  save_detections(detections, result_file)
 
 if __name__ == "__main__":
     main()
-
