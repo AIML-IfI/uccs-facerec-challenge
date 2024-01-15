@@ -26,9 +26,6 @@ def download_MagFace(args,logger):
         # the baseline requires MagFace model
         repository_url = "https://github.com/IrvingMeng/MagFace.git"
 
-        # download the default model weights from google drive (backbone--iresnet100)
-        model_weights_url = "https://drive.google.com/uc?id=1Bd87admxOZvbIOAyTkGEntsEz3fyMt7H"
-
         # construct the Git clone command
         git_clone_command = ["git", "clone", repository_url, magFace_directory]
 
@@ -42,6 +39,9 @@ def download_MagFace(args,logger):
 
     # downloading magface iresnet100 model weights
     if not os.path.exists(weights_path):
+        # download the default model weights from google drive (backbone--iresnet100)
+        model_weights_url = "https://drive.google.com/uc?id=1Bd87admxOZvbIOAyTkGEntsEz3fyMt7H"
+        
         # use gdown to download the file
         try:
             gdown.download(model_weights_url, weights_path, quiet=False)
