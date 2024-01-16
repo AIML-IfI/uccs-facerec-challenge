@@ -21,15 +21,15 @@ recognition:
   embedding_size: 512                                       # The embedding feature size
   arch: 'iresnet100'                                        # The backbone model of MagFace
 
+scoring:                                                    # It generates a score file
+  gallery: '{result_directory}/gallery_embeddings'          # Select the directory where the gallery embeddings are stored
+  probe: '{result_directory}/{which_set}_embeddings'        # Select the directory where the probe embeddings are stored
+  results: '{result_directory}/UCCS-scoring-baseline-{which_set}.txt'        # Save the score file as .txt file
+
 eval:
   exclude_gallery: '{data_directory}/exclude_gallery_valid.pickle'           # Select the file where gallery face IDs are stored to exclude them from the results
   iou: 0.5                                                  # The overlap threshold for detected faces to be considered to be detected correctly
   linear: False                                             # If selected, plots will be in linear, otherwise semilogx
-
-  scoring:                                                  # It generates a score file
-    gallery: '{result_directory}/gallery_embeddings'        # Select the directory where the gallery embeddings are stored
-    probe: '{result_directory}/{which_set}_embeddings'      # Select the directory where the probe embeddings are stored
-    results: '{result_directory}/UCCS-scoring-baseline-{which_set}.txt'        # Save the score file as .txt file
 
   detection:                                                # More detection/scoring files can be added to the list to compare them at the same plot.
     files: ['{result_directory}/UCCS-detection-baseline-{which_set}.txt']  # Get the file(s) containing the UCCS face detection results
