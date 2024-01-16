@@ -24,7 +24,7 @@ def read_config_file():
     )
 
     parent_direct = os.path.dirname(os.path.dirname(__file__))
-    cfg = yamlparser.config_parser(default_config_files=[os.path.join(parent_direct, "configs/baseline_config.yaml")])
+    cfg = yamlparser.config_parser(parser=parser,default_config_files=[os.path.join(parent_direct, "configs/baseline_config.yaml")])
 
     if 'detection' in cfg.tasks:
         if cfg.eval.detection.files is None:
