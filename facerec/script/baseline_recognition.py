@@ -16,6 +16,9 @@ def read_config_file():
     parent_direct = os.path.dirname(os.path.dirname(__file__))
     cfg = yamlparser.config_parser(default_config_files=[os.path.join(parent_direct, "configs/baseline_config.yaml")])
 
+    if cfg.recognition.extract_gallery:
+        cfg.unfreeze()
+        
     if not cfg.recognition.detection_file:
         raise ValueError (f"For the {cfg.which_set} set, --recognition.detection_file is required.")
 
@@ -30,7 +33,7 @@ def main():
     cfg = read_config_file()
 
     # load extraction protocol
-    logger.info("Loading {}%s extraction protocol".format("gallery and " if cfg.extract_gallery else ""), cfg.which_set)
+    logger.info("Loading {}%s extraction protocol".format("gallery and " if cfg.recognition.extract_gallery else ""), cfg.which_set)
 
     # download MagFace repo and its model weights if it wasn't downloaded before
     logger.info("Downloading/Activating MagFace and its model weights")
@@ -41,7 +44,7 @@ def main():
     model,device = build_model(cfg)
 
     # sets that will be extracted
-    sets = ["gallery",cfg.which_set] if cfg.extract_gallery else [cfg.which_set] 
+    sets = ["gallery",cfg.which_set] if cfg.recognition.extract_gallery else [cfg.which_set] 
 
     for set_name in sets:
         # update the config.which_set
@@ -64,7 +67,7 @@ def main():
         # get the data loader
         logger.info("Creating the %s dataloader", cfg.which_set)
         inf_loader,batch_size_perImg = inference_dataloader((img_paths,None,landmarks),
-                                      cfg.which_set,cfg.batch_size_perImg,cfg.recognition.workers)
+                                      cfg.which_set,cfg.recognition.batch_size_perImg,cfg.recognition.workers)
 
         # create result dir based on the set
         result_dir = cfg.recognition.result_dir
