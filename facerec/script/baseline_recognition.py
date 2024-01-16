@@ -26,9 +26,6 @@ def read_config_file():
     baseline_config = os.path.join(parent_direct, "configs/baseline_config.yaml")
 
     cfg = yamlparser.config_parser(parser=parser,default_config_files=[baseline_config])
-
-    if cfg.recognition.extract_gallery:
-        cfg.unfreeze()
         
     if not cfg.recognition.detection_file:
         raise ValueError (f" --recognition.detection_file is required.")
