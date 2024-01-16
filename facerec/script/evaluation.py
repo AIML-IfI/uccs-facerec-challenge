@@ -106,7 +106,7 @@ def main():
         # get gallery enrollment
         logger.info("Getting UCCS gallery enrollment (average)")
         gallery_embedd_path = cfg.eval.scoring.gallery
-        subject_ids,gallery_enroll = average(gallery_embedd_path)
+        subject_ids,gallery_enroll = average(cfg.data_directory,gallery_embedd_path)
 
         subject_ids = ["S_"+i for i in subject_ids]
 
