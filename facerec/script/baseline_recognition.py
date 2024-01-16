@@ -1,7 +1,9 @@
 # This file contains a script to take the detected faces and process them with a face recognition algorithm
 # It can extract features from both gallery and given set
 import logging
+import yaml
 import yamlparser
+import argparse
 import os
 import torch
 from ..dataset import read_detections,read_ground_truth
@@ -13,24 +15,46 @@ logger = logging.getLogger("FaceRec.UCCS")
 
 def read_config_file():
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--extract_gallery", "-ex",
+        default = True,
+        help = "Allows to extract gallery with another set at the same time, after getting gallery embedding once, it is recommended to turn it False"
+    )
+
     parent_direct = os.path.dirname(os.path.dirname(__file__))
-    cfg = yamlparser.config_parser(default_config_files=[os.path.join(parent_direct, "configs/baseline_config.yaml")])
+    baseline_config = os.path.join(parent_direct, "configs/baseline_config.yaml")
+
+    cfg = yamlparser.config_parser(parser=parser,default_config_files=[baseline_config])
 
     if cfg.recognition.extract_gallery:
         cfg.unfreeze()
         
     if not cfg.recognition.detection_file:
-        raise ValueError (f"For the {cfg.which_set} set, --recognition.detection_file is required.")
+        raise ValueError (f" --recognition.detection_file is required.")
 
     if not os.path.exists(cfg.result_directory):
         os.mkdir(cfg.result_directory)
+
+    if cfg.extract_gallery:
+        orig_config = yaml.safe_load(open(baseline_config,'r'))
+        cfg.unfreeze()
+    else:
+        orig_config = None
+
+    return orig_config,cfg
+
+def update_config(orig_config,cfg):
+    cfg.update(orig_config)
+    cfg.format_self()
+    cfg.unfreeze()
 
     return cfg
 
 def main():
 
     # get command line arguments
-    cfg = read_config_file()
+    orig_config,cfg = read_config_file()
 
     # load extraction protocol
     logger.info("Loading {}%s extraction protocol".format("gallery and " if cfg.recognition.extract_gallery else ""), cfg.which_set)
@@ -44,12 +68,15 @@ def main():
     model,device = build_model(cfg)
 
     # sets that will be extracted
-    sets = ["gallery",cfg.which_set] if cfg.recognition.extract_gallery else [cfg.which_set] 
-
+    sets = ["gallery",cfg.which_set] if cfg.extract_gallery else [cfg.which_set] 
+    
     for set_name in sets:
+
         # update the config.which_set
-        cfg.which_set = set_name
-        
+        if cfg.which_set != set_name:
+            orig_config["which_set"] = set_name
+            cfg = update_config(orig_config,cfg)
+
         # read the detections for gallery,valid or test
         if cfg.which_set =="gallery":
             data = read_ground_truth(cfg.data_directory,"gallery")

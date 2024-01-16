@@ -14,7 +14,6 @@ detection:
   parallel: 0                                               # If given as int, images will be processed with the given number of parallel processes
 
 recognition:
-  extract_gallery: True                                     # Allows to extract gallery with another set at the same time, after getting gallery embedding once, it is recommended to turn it False
   detection_file: '{result_directory}/UCCS-detection-baseline-{which_set}.txt'  # The .csv file containing the file names and landmarks that need to be extracted
   result_dir: '{result_directory}/{which_set}_embeddings'   # Which directory will be used for storing embeddings
   workers: 4                                                # The number of data loading workers

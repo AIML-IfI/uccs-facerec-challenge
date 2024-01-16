@@ -8,11 +8,11 @@ import warnings
 def average(data_dir,embeddings_dir,set="gallery"):
 
     data = read_ground_truth(data_dir,set)
-    subject_ids = list(data.keys())
+    subject_ids = sorted(np.unique([ f'{v[1][0]:04d}' for v in data.values()]))
 
     gallery_embeds = []
 
-    for id in sorted(subject_ids):
+    for id in subject_ids:
         
         #get the the path of the id
         id_embedding_pth = os.path.join(embeddings_dir,f"{id}.pth")

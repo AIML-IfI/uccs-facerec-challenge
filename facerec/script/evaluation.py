@@ -1,5 +1,5 @@
-# This file contains code to produce a score file and plots F-ROC and O-ROC file for the baseline
-# It can be used for either all of them or just one of them (detection, score file, identification)
+# This file contains code to plot F-ROC and O-ROC file for the baseline
+# It can be used for either all of them or just one of them (detection and recognition)
 # But arguments that are below the interested section should be given
 import logging
 import yamlparser
