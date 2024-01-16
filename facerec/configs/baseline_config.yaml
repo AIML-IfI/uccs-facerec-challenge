@@ -4,7 +4,7 @@
 data_directory: 'data'                                        # Select the directory, where the UCCS files are stored (required)
 result_directory: 'results'
 image_directory: '{data_directory}/{which_set}_images'       # Select the directory, where the images are stored (required)
-which_set: 'validation'                                      # Select the dataset to use
+which_set: 'validation'                                      # Select the dataset to use (validation or test)
 gpu: 0                                                       # GPU index to run the detector on it, to run on cpu it should be given null (None)
 
 detection:
@@ -14,6 +14,7 @@ detection:
   parallel: 0                                               # If given as int, images will be processed with the given number of parallel processes
 
 recognition:
+  extract_gallery: True                                     # Allows to extract gallery with another set at the same time, after getting gallery embedding once, it is recommended to turn it False
   detection_file: '{result_directory}/UCCS-detection-baseline-{which_set}.txt'  # The .csv file containing the file names and landmarks that need to be extracted
   result_dir: '{result_directory}/{which_set}_embeddings'   # Which directory will be used for storing embeddings
   workers: 4                                                # The number of data loading workers
@@ -28,7 +29,7 @@ scoring:                                                    # It generates a sco
 
 eval:
   exclude_gallery: '{data_directory}/exclude_gallery_valid.pickle'           # Select the file where gallery face IDs are stored to exclude them from the results
-  iou: 0.5                                                  # The overlap threshold for detected faces to be considered to be detected correctly
+  iou: 0.5                                                  # The overlap threshold for detected faces to be considered as a correct detection
   linear: False                                             # If selected, plots will be in linear, otherwise semilogx
 
   detection:                                                # More detection/scoring files can be added to the list to compare them at the same plot.
