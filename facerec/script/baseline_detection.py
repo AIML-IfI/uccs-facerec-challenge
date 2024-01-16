@@ -12,8 +12,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger("UCCS.FaceRec")
 
 def read_configuration_file():
-
-  cfg = yamlparser.config_parser(default_config_files=[os.path.join(os.path.dirname(__file__), "baseline_config.yaml")])
+  
+  parent_direct = os.path.dirname(os.path.dirname(__file__))
+  cfg = yamlparser.config_parser(default_config_files=[os.path.join(parent_direct, "configs/baseline_config.yaml")])
 
   if not os.path.exists(cfg.result_directory):
     os.mkdir(cfg.result_directory)
