@@ -54,7 +54,7 @@ def main():
     orig_config,cfg = read_config_file()
 
     # load extraction protocol
-    logger.info("Loading {}%s extraction protocol".format("gallery and " if cfg.recognition.extract_gallery else ""), cfg.which_set)
+    logger.info("Loading {}%s extraction protocol".format("gallery and " if cfg.extract_gallery else ""), cfg.which_set)
 
     # download MagFace repo and its model weights if it wasn't downloaded before
     logger.info("Downloading/Activating MagFace and its model weights")
