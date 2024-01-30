@@ -27,7 +27,7 @@ scoring:                                                    # It generates a sco
   results: '{result_directory}/UCCS-scoring-baseline-{which_set}.txt'        # Save the score file as .txt file
 
 eval:
-  exclude_gallery: '{data_directory}/exclude_gallery_valid.pickle'           # Select the file where gallery face IDs are stored to exclude them from the results
+  exclude_gallery: '{data_directory}/exclude_gallery_{which_set}.pickle'  # Select the file where gallery face IDs are stored to exclude them from the results
   iou: 0.5                                                  # The overlap threshold for detected faces to be considered as a correct detection
   linear: False                                             # If selected, plots will be in linear, otherwise semilogx
 
