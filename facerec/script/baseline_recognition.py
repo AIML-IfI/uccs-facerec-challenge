@@ -19,7 +19,7 @@ def read_config_file():
     parser.add_argument(
         "--extract_gallery", "-ex",
         default = True,
-        help = "Allows to extract gallery with another set at the same time, after getting gallery embedding once, it is recommended to turn it False"
+        help = "Allows to extract gallery with another set at the same time"
     )
 
     parent_direct = os.path.dirname(os.path.dirname(__file__))
@@ -28,30 +28,30 @@ def read_config_file():
     cfg = yamlparser.config_parser(parser=parser,default_config_files=[baseline_config])
         
     if not cfg.recognition.detection_file:
-        raise ValueError (f" --recognition.detection_file is required.")
+        raise ValueError (f"--recognition.detection_file is required.")
 
     if not os.path.exists(cfg.result_directory):
         os.mkdir(cfg.result_directory)
 
+    cfg.unfreeze()
+
     if cfg.extract_gallery:
-        orig_config = yaml.safe_load(open(baseline_config,'r'))
-        cfg.unfreeze()
-    else:
-        orig_config = None
+        read_config_file.orig_config = yaml.safe_load(open(baseline_config,'r'))
+        read_config_file.orig_config["which_set"] = "gallery"
 
-    return orig_config,cfg
+    return cfg
 
-def update_config(orig_config,cfg):
+def update_config(cfg,orig_config):
+    # update the config for gallery extraction
     cfg.update(orig_config)
     cfg.format_self()
     cfg.unfreeze()
-
     return cfg
 
 def main():
 
     # get command line arguments
-    orig_config,cfg = read_config_file()
+    cfg = read_config_file()
 
     # load extraction protocol
     logger.info("Loading {}%s extraction protocol".format("gallery and " if cfg.extract_gallery else ""), cfg.which_set)
@@ -65,14 +65,13 @@ def main():
     model,device = build_model(cfg)
 
     # sets that will be extracted
-    sets = ["gallery",cfg.which_set] if cfg.extract_gallery else [cfg.which_set] 
-    
+    sets = [cfg.which_set,"gallery"] if cfg.extract_gallery else [cfg.which_set]
+
     for set_name in sets:
 
-        # update the config.which_set
+        # update the cfg if the gallery will be extracted
         if cfg.which_set != set_name:
-            orig_config["which_set"] = set_name
-            cfg = update_config(orig_config,cfg)
+            cfg = update_config(cfg,read_config_file.orig_config)
 
         # read the detections for gallery,valid or test
         if cfg.which_set =="gallery":
@@ -86,7 +85,7 @@ def main():
         # create the path of images, it differs based on the protocol because the gallery has sub-directories
         image_directory = cfg.image_directory
         img_paths = [os.path.join(image_directory,file.split("_")[0],file) for file in img_files] if cfg.which_set == "gallery"  else [
-        os.path.join(image_directory,file) for file in img_files]
+                    os.path.join(image_directory,file) for file in img_files]
 
         # get the data loader
         logger.info("Creating the %s dataloader", cfg.which_set)
@@ -97,7 +96,7 @@ def main():
         result_dir = cfg.recognition.result_dir
         os.makedirs(result_dir, exist_ok=True)
 
-        logger.info(f"Starting the {set_name} inference process")
+        logger.info(f"Starting the {cfg.which_set} inference process")
         with torch.no_grad():
 
             for input, img_names in tqdm(inf_loader):
