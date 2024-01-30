@@ -23,7 +23,7 @@ def cosine(x,y, gpu_index=None):
         return torch.nn.functional.normalize(y, p=2, dim=1)
 
     if not hasattr(cosine, 'y_norm'):
-        cosine.y = normalize_y_once(y)
+        cosine.y_norm = normalize_y_once(y)
 
     # Convert input array x to PyTorch tensor and move it to the specified device
     x = torch.tensor(x, dtype=torch.float32, device=device)
@@ -32,7 +32,7 @@ def cosine(x,y, gpu_index=None):
     x = torch.nn.functional.normalize(x, p=2, dim=1)
 
     # Compute the cosine similarity using PyTorch matmul
-    similarity = torch.matmul(x, cosine.y.t())
+    similarity = torch.matmul(x, cosine.y_norm.t())
 
     return similarity.cpu().numpy() if gpu_index is not None else similarity.numpy()
 
