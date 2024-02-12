@@ -51,7 +51,8 @@ setup(
       'console_scripts' : [
           'baseline-detection.py   = facerec.script.baseline_detection:main',
           'baseline-recognition.py = facerec.script.baseline_recognition:main',
-          'facerec-evaluation.py   = facerec.script.evaluation:main',
+          'scoring.py = facerec.script.scoring:main'
+          'evaluation.py   = facerec.script.evaluation:main',
       ],
     },
 

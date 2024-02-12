@@ -8,4 +8,4 @@ git>=2.40
 tqdm>=4.64.0
 opencv-python==4.8
 facenet_pytorch==2.5.3
-gdown==4.7.1
+gdown==5.0.1

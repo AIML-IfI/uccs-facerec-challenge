@@ -1,5 +1,5 @@
-# uccs-facerec-challenge
-Source code to run the baselines and evaluations in the UCCS face recognition challenge
+# watchlist-challenge
+Source code to run the baselines and evaluations in the UCCS watchlist challenge
 
 
 ## Installation
@@ -16,13 +16,13 @@ All scripts will be installed together with this package.
 Their sources can be found in `facerec/script`.
 
 ### Face detection
-
   baseline-detection.py
-
 
 ### Face recognition
   baseline-recognition.py
 
+### Scoring
+  scoring.py
 
 ### Evaluation
   evaluation.py
