@@ -7,7 +7,7 @@ setup(
     # This is the basic information about your project. Modify all this
     # information before releasing code publicly.
     name = 'uccs-facerec',
-    version = "0.1",
+    version = "3.0.0",
     description = 'Source code for running the baseline and evaluation of the third UCCS face recognition challenge',
 
     url = 'https://github.com/AIML-IfI/uccs-facerec-challenge',
