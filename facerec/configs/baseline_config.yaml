@@ -1,4 +1,4 @@
-# It contains all arguments for three baseline scripts.
+# It contains all arguments for all four scripts (baseline_detection.py, baseline_recognition.py, scoring.py and evaluation.py).
 # Also, it is possible to overwrite any parameter that is contained in a configuration file on the command line.
 
 data_directory: 'data'                                       # Select the directory, where the UCCS data files are stored (required)
