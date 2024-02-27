@@ -5,7 +5,7 @@ data_directory: 'data'                                       # Select the direct
 result_directory: 'results'                                  # Select the directory, where the score files and plots will be stored
 image_directory: '{data_directory}/{which_set}_images'       # Select the directory, where the images are stored (required)
 which_set: 'validation'                                      # Select the dataset to use (validation or test)
-gpu: 0                                                       # GPU index to run the detector/extractor on it, to run on cpu it should be given null (None)
+gpu: 0                                                       # GPU index to run the detector/extractor on it, to run on cpu mode, please specify -1
 
 detection:
   thresholds: [0.2,0.2,0.2]                                 # Limits detections to those that have a prediction value higher than --threshold
