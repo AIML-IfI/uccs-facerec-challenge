@@ -1,6 +1,9 @@
 # This file contains a script to take the detected faces and process them with a face recognition algorithm
+# It can extract features from both gallery and given set
 import logging
+import yaml
 import yamlparser
+import argparse
 import os
 import torch
 from ..dataset import read_detections,read_ground_truth
@@ -12,15 +15,37 @@ logger = logging.getLogger("FaceRec.UCCS")
 
 def read_config_file():
 
-    cfg = yamlparser.config_parser(default_config_files=[os.path.join(os.path.dirname(__file__), "baseline_config.yaml")])
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--disable-gallery", "-dis",
+        action="store_false",
+        help = "Disable the gallery feature extraction with the given set at the same time"
+    )
 
-    if cfg.which_set != "gallery":
-        if not cfg.recognition.detection_file:
-            raise ValueError ("For the validation set, --recognition.detection_file is required.")
+    parent_direct = os.path.dirname(os.path.dirname(__file__))
+    baseline_config = os.path.join(parent_direct, "configs/baseline_config.yaml")
+
+    cfg = yamlparser.config_parser(parser=parser,default_config_files=[baseline_config])
+        
+    if not cfg.recognition.detection_file:
+        raise ValueError (f"--recognition.detection_file is required.")
 
     if not os.path.exists(cfg.result_directory):
         os.mkdir(cfg.result_directory)
 
+    cfg.unfreeze()
+
+    if cfg.disable_gallery:
+        read_config_file.orig_config = yaml.safe_load(open(baseline_config,'r'))
+        read_config_file.orig_config["which_set"] = "gallery"
+
+    return cfg
+
+def update_config(cfg,orig_config):
+    # update the config for gallery extraction
+    cfg.update(orig_config)
+    cfg.format_self()
+    cfg.unfreeze()
     return cfg
 
 def main():
@@ -29,54 +54,64 @@ def main():
     cfg = read_config_file()
 
     # load extraction protocol
-    logger.info("Loading UCCS %s extraction protocol", cfg.which_set)
-
-    # read the detections for gallery,valid or test
-    if cfg.which_set =="gallery":
-        data = read_ground_truth(cfg.data_directory,"gallery")
-    else:
-        data = read_detections(cfg.recognition.detection_file)
-
-    landmarks = [l for _,_,l in data.values()]
-    img_files = list(data.keys())
-
-    # create the path of images, it differs based on the protocol because the gallery has sub-directories
-    image_directory = cfg.image_directory
-    img_paths = [os.path.join(image_directory,file.split("_")[0],file) for file in img_files] if cfg.which_set == "gallery"  else [
-        os.path.join(image_directory,file) for file in img_files]
+    logger.info("Loading {}%s extraction protocol".format("gallery and " if cfg.disable_gallery else ""), cfg.which_set)
 
     # download MagFace repo and its model weights if it wasn't downloaded before
     logger.info("Downloading/Activating MagFace and its model weights")
     download_MagFace(cfg,logger)
 
-    # get the data loader
-    logger.info("Creating the %s dataloader", cfg.which_set)
-    inf_loader,batch_size_perImg = inference_dataloader((img_paths,None,landmarks),
-                                      cfg.which_set,cfg.recognition.batch_size_perImg,cfg.recognition.workers)
-
     # get the model in eval mode
     logger.info("Loading the baseline model")
     model,device = build_model(cfg)
 
-    result_dir = cfg.recognition.result_dir
-    os.makedirs(result_dir, exist_ok=True)
+    # sets that will be extracted
+    sets = [cfg.which_set,"gallery"] if cfg.disable_gallery else [cfg.which_set]
 
-    logger.info("Starting the inference process")
-    with torch.no_grad():
+    for set_name in sets:
 
-        for input, img_names in tqdm(inf_loader):
+        # update the cfg if the gallery will be extracted
+        if cfg.which_set != set_name:
+            cfg = update_config(cfg,read_config_file.orig_config)
 
-            # when batch size = 1, to avoid extra dimension increased by dataloader
-            input = input[0] if batch_size_perImg == 1 else input
+        # read the detections for gallery,valid or test
+        if cfg.which_set =="gallery":
+            data = read_ground_truth(cfg.data_directory,"gallery")
+        else:
+            data = read_detections(cfg.recognition.detection_file)
 
-            # compute features
-            input = input.to(device,dtype=torch.float)
-            embedding_feat = model(input)
+        landmarks = [l for _,_,l in data.values()]
+        img_files = list(data.keys())
 
-            _feat = embedding_feat.data.cpu().numpy()
+        # create the path of images, it differs based on the protocol because the gallery has sub-directories
+        image_directory = cfg.image_directory
+        img_paths = [os.path.join(image_directory,file.split("_")[0],file) for file in img_files] if cfg.which_set == "gallery"  else [
+                    os.path.join(image_directory,file) for file in img_files]
 
-            # save all information (detection scores,bboxes,landmarks,embeddings) of that image/identity
-            _ = save_features_information(data,img_names,cfg.which_set,_feat,result_dir,batch_size_perImg)
+        # get the data loader
+        logger.info("Creating the %s dataloader", cfg.which_set)
+        inf_loader,batch_size_perImg = inference_dataloader((img_paths,None,landmarks),
+                                      cfg.which_set,cfg.recognition.batch_size_perImg,cfg.recognition.workers)
+
+        # create result dir based on the set
+        result_dir = cfg.recognition.result_dir
+        os.makedirs(result_dir, exist_ok=True)
+
+        logger.info(f"Starting the {cfg.which_set} inference process")
+        with torch.no_grad():
+
+            for input, img_names in tqdm(inf_loader):
+
+                # when batch size = 1, to avoid extra dimension increased by dataloader
+                input = input[0] if batch_size_perImg == 1 else input
+
+                # compute features
+                input = input.to(device,dtype=torch.float)
+                embedding_feat = model(input)
+
+                _feat = embedding_feat.data.cpu().numpy()
+
+                # save all information (detection scores,bboxes,landmarks,embeddings) of that image/identity
+                _ = save_features_information(data,img_names,cfg.which_set,_feat,result_dir,batch_size_perImg)
 
 if __name__ == "__main__":
     main()

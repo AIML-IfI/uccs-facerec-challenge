@@ -6,8 +6,8 @@ setup(
 
     # This is the basic information about your project. Modify all this
     # information before releasing code publicly.
-    name = 'uccs-facerec',
-    version = "0.1",
+    name = 'challenge.uccs',
+    version = "3.0.0",
     description = 'Source code for running the baseline and evaluation of the third UCCS face recognition challenge',
 
     url = 'https://github.com/AIML-IfI/uccs-facerec-challenge',
@@ -18,18 +18,23 @@ setup(
     # If you have a better, long description of your package, place it on the
     # 'doc' directory and then hook it here
     long_description = open('README.md').read(),
+    long_description_content_type='text/markdown',
 
     # This line is required for any distutils based packaging.
     # It will find all package-data inside the 'bob' directory.
     packages = find_packages('.'),
     include_package_data = True,
+    package_data={
+        '': ['facerec/configs/*.yaml'],
+    },
 
     # This line defines which packages should be installed when you "install"
     # this package. All packages that are mentioned here, but are not installed
     # on the current system will be installed locally and only visible to the
     # scripts of this package. Don't worry - You won't need administrative
     # privileges when using buildout.
-    # install_requires = open("requirements.txt").read().split(),
+    #python_requires = '>=3.10',
+    #install_requires = open("requirements.txt").read().splitlines(),
 
     # This entry defines which scripts you will have inside the 'bin' directory
     # once you install the package (or run 'bin/buildout'). The order of each
@@ -49,9 +54,10 @@ setup(
 
       # scripts should be declared using this entry:
       'console_scripts' : [
-          'baseline-detection.py   = facerec.script.baseline_detection:main',
-          'baseline-recognition.py = facerec.script.baseline_recognition:main',
-          'facerec-evaluation.py   = facerec.script.evaluation:main',
+          'baseline_detection.py= facerec.script.baseline_detection:main',
+          'baseline_recognition.py = facerec.script.baseline_recognition:main',
+          'scoring.py = facerec.script.scoring:main',
+          'evaluation.py   = facerec.script.evaluation:main',
       ],
     },
 

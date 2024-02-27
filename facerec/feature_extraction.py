@@ -211,10 +211,10 @@ def build_model(args):
 
     model_args = args.recognition
     # magface requires cpu_mode argument
-    model_args.cpu_mode = args.gpu is None
+    model_args.cpu_mode = args.gpu < 0
     model = builder_inf(model_args)
 
-    device = torch.device(f"cuda:{args.gpu}" if args.gpu is not None else "cpu")
+    device = torch.device(f"cuda:{args.gpu}" if args.gpu >= 0 else "cpu")
     model = model.to(device)
 
 #    if len(args.gpu) > 1:

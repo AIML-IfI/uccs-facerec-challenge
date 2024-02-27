@@ -226,7 +226,7 @@ def plot_oroc_curve(results,labels,rank,saving_path,known_numbers,linear=False,p
         plt.ylabel('TPI')
     else:
         plt.ylim((0, 1))
-        plt.ylabel('TPIR')
+        plt.ylabel('TPIR Per Face')
     
     plt.tight_layout()
     plt.savefig(saving_path)

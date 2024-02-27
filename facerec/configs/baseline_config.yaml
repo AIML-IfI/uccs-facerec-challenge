@@ -1,0 +1,45 @@
+# It contains all arguments for all four scripts (baseline_detection.py, baseline_recognition.py, scoring.py and evaluation.py).
+# Also, it is possible to overwrite any parameter that is contained in a configuration file on the command line.
+
+data_directory: 'data'                                       # Select the directory, where the UCCS data files are stored (required)
+result_directory: 'results'                                  # Select the directory, where the score files and plots will be stored
+image_directory: '{data_directory}/{which_set}_images'       # Select the directory, where the images are stored (required)
+which_set: 'validation'                                      # Select the dataset to use (validation or test)
+gpu: 0                                                       # GPU index to run the detector/extractor on it, to run on cpu mode, please specify -1
+
+detection:
+  thresholds: [0.2,0.2,0.2]                                 # Limits detections to those that have a prediction value higher than --threshold
+  results: '{result_directory}/UCCS-detection-baseline-{which_set}.txt'         # Select the file to write the scores into
+  max_detections: 50                                        # Specify, how many top detections per image should be stored
+  parallel: 0                                               # If given as positive int, images will be processed with the given number of parallel processes
+
+recognition:
+  detection_file: '{result_directory}/UCCS-detection-baseline-{which_set}.txt'  # The file containing the detected faces that need to be extracted
+  result_dir: '{result_directory}/{which_set}_embeddings'   # Which directory will be used for storing embeddings
+  workers: 4                                                # The number of data-loading workers
+  batch_size_perImg: 1                                      # For validation; it should be 1 because of the different number of faces in each image, for gallery; it is multiples of 10
+  embedding_size: 512                                       # The embedding feature size
+  arch: 'iresnet100'                                        # The backbone model of MagFace
+
+scoring:                                                    # It generates the score file
+  gallery: '{result_directory}/gallery_embeddings'          # Select the directory where the gallery embeddings are stored
+  probe: '{result_directory}/{which_set}_embeddings'        # Select the directory where the probe embeddings are stored
+  results: '{result_directory}/UCCS-scoring-baseline-{which_set}.txt'        # Save the score file
+
+eval:
+  exclude_gallery: '{data_directory}/exclude_gallery_{which_set}.pickle'  # Select the file where gallery face IDs are stored to exclude them from the results
+  iou: 0.5                                                  # The overlap threshold for detected faces to be considered as a correct detection
+  linear: False                                             # If selected, plots will be in linear, otherwise semilogx
+
+  detection:                                                # More detection files can be added to the  files list to compare them at the same plot.
+    files: ['{result_directory}/UCCS-detection-baseline-{which_set}.txt']  # Get the file(s) containing the UCCS face detection results
+    labels: ["mtcnn"]                                       # Use these labels; if not given, the filenames will be used
+    froc: "{result_directory}/UCCS-FROC-{which_set}.pdf"    # The file where the FROC curve will be plotted into
+    plot_numbers: False                                     # If selected, the total number of detected faces will be shown (rather than percentages)
+
+  recognition:                                              # More scoring files can be added to the  files list to compare them at the same plot.
+    files: ['{result_directory}/UCCS-scoring-baseline-{which_set}.txt'] # Get the file(s) with the UCCS face detection results
+    rank: 1                                                 # Plot DIR curves for the given rank
+    labels: ["MagFace"]                                     # Use these labels; if not given, the directory names will be used
+    oroc: '{result_directory}/UCCS-OROC-{which_set}.pdf'    # The file where the O-ROC curve will be plotted into
+    plot_numbers: False                                     # If selected, the total number of recognized faces will be shown (rather than percentages)

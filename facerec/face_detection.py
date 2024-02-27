@@ -11,7 +11,7 @@ def detect_faces(img_files,thresholds,max_detections,logger,gpu_index=None):
   """
 
   # device for the inference
-  device = torch.device(f"cuda:{gpu_index}") if isinstance(gpu_index,int) else torch.device("cpu")
+  device = torch.device(f"cuda:{gpu_index}") if gpu_index >= 0 else torch.device("cpu")
 
   # if select_largest is False, all bboxes are sorted by their detection probabilities, otherwise their size
   face_detector = MTCNN(min_face_size=40, factor=0.709, thresholds=thresholds, keep_all=True,select_largest=False,device=device)

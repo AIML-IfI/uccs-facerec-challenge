@@ -1,5 +1,5 @@
-# This file contains code to produce a score file and plots F-ROC and O-ROC file for the baseline
-# It can be used for either all of them or just one of them (detection, score file, identification)
+# This file contains code to plot F-ROC and O-ROC file for the baseline
+# It can be used for either all of them or just one of them (detection and recognition)
 # But arguments that are below the interested section should be given
 import logging
 import yamlparser
@@ -7,8 +7,6 @@ import argparse
 import os
 import pickle
 import numpy as np
-from ..enrollment import average
-from ..scoring import create_score_file
 from ..dataset import read_detections,read_ground_truth,read_recognitions
 from ..evaluate import assign_detections,compute_DR_FDPI,plot_froc_curve,compute_TPIR_FPIPI,plot_oroc_curve
 
@@ -20,12 +18,13 @@ def read_config_file():
     parser.add_argument(
         "--tasks", "-t",
         nargs = "+",
-        choices = ["scoring", "detection", "recognition"],
-        default = ["scoring", "detection", "recognition"],
+        choices = ["detection", "recognition"],
+        default = ["detection", "recognition"],
         help = "Select the tasks that should be performed in this evaluation"
     )
 
-    cfg = yamlparser.config_parser(parser=parser,default_config_files=[os.path.join(os.path.dirname(__file__), "baseline_config.yaml")])
+    parent_direct = os.path.dirname(os.path.dirname(__file__))
+    cfg = yamlparser.config_parser(parser=parser,default_config_files=[os.path.join(parent_direct, "configs/baseline_config.yaml")])
 
     if 'detection' in cfg.tasks:
         if cfg.eval.detection.files is None:
@@ -47,15 +46,11 @@ def read_config_file():
         if len(cfg.eval.recognition.labels) != len(cfg.eval.recognition.files):
             raise ValueError("The number of labels (%d) and results (%d) differ" % (len(cfg.eval.recognition.labels), len(cfg.eval.recognition.labels)))
 
-    if 'scoring' in cfg.tasks:
-        if (cfg.eval.scoring.gallery is None or cfg.eval.scoring.probe is None):
-            raise ValueError("For the scoring task, both --eval.scoring.gallery and --eval.scoring.probe are required.")
-
     return cfg
 
 def main():
 
-    # get command line arguments
+    # get config arguments
     cfg = read_config_file()
 
     # load the evaluation protocol
@@ -98,22 +93,6 @@ def main():
         logger.info("Plotting F-ROC curve(s) to file '%s'", froc_path)
         plot_froc_curve(detection_results,cfg.eval.detection.labels,froc_path,
                                  face_numbers,cfg.eval.linear,cfg.eval.detection.plot_numbers)
-
-    # create score file if it is given
-    if "scoring" in cfg.tasks:
-        logger.info("Loading UCCS %s scoring protocol",cfg.which_set)
-        # get gallery enrollment
-        logger.info("Getting UCCS gallery enrollment (average)")
-        gallery_embedd_path = cfg.eval.scoring.gallery
-        subject_ids,gallery_enroll = average(gallery_embedd_path)
-
-        subject_ids = ["S_"+i for i in subject_ids]
-
-        # compute scores between enrollment and probe and write them into a file
-        probe_path = cfg.eval.scoring.probe
-        scoring_path = cfg.eval.scoring.results
-        logger.info("Computing scores and writing them into %s",scoring_path)
-        _ = create_score_file((subject_ids,gallery_enroll),probe_path,scoring_path)
 
     # plot o-roc for the identification results if it is given
     if "recognition" in cfg.tasks:
