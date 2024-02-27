@@ -7,14 +7,22 @@ This package utilizes the PyTorch framework to implement baseline algorithms and
 
 This package does not include the original image and protocol files for the competition.
 Please register on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/challenge.html). Upon confirming your registration, we will provide the data, including gallery and validation images along with their protocol files, in a zip file. Please extract zip files **into a new directory named `data`** (the .zip files contain the appropriate directory structure) within this package. After this, the directory structure should appear as follows:
+
 `uccs-facerec-challenge/
+
 ├── data
+
   ├── gallery_images/
+
     ├── 0001
+
       ├── 0001_0.png
+
       ├── ...
+
       └── 0001_9.png
     ├── ...
+
     └── 1000
 
   ├── validation_images/
@@ -55,7 +63,7 @@ Install via conda:
 
 There are four scripts in total, which can be found in `facerec/script`. 
 All scripts will be installed together with the installation of this package in order to run the baseline algorithms or to evaluate the baselines (and your) algorithm.
-The networks employed in our baselines will be automatically downloaded when you run the corresponding script. Hence, there is no need for you to separately download these baseline algorithms ([MTCNN](https://pypi.org/project/facenet-pytorch/) and [MagFace](https://github.com/IrvingMeng/MagFace)).
+The networks employed in our baselines will be automatically downloaded when you run the corresponding script. Hence, there is no need for you to separately download these baseline algorithms which are [MTCNN](https://pypi.org/project/facenet-pytorch/) and [MagFace](https://github.com/IrvingMeng/MagFace).
 
 Each script is associated with its distinct set of parameters specified in the configuration *.yaml* file, located at `facerec/configs/baseline_config.yaml`.
 In the `baseline_config.yaml` file, you can find all these arguments, along with their default values, under their respective sections.
@@ -191,7 +199,7 @@ You can use the evaluation script for two purposes:
 2. To make sure that your score file is in the desired format.
 
 
-In the face detection evaluation, the script compares detected bounding boxes, utilizing the standard IOU metric with a threshold of `0.5`, against the ground truth. Only the detection box with the highest overlap () can be considered a true positive, while others are penalized. The evaluation employs the Free Receiver Operator Characteristic (FROC) curve, ploting the Detection Rate (percentage of correctly detected faces) against False Detection per Image (detected background regions).
+In the face detection evaluation, the script compares detected bounding boxes, utilizing the standard IOU metric with a threshold of `0.5`, against the ground truth. Only the detection box with the highest overlap can be considered a true positive, while others are penalized. The evaluation employs the Free Receiver Operator Characteristic (FROC) curve, ploting the Detection Rate (percentage of correctly detected faces) against False Detection per Image (detected background regions).
 False Detection per Image is calculated by dividing the misdetections by the number of probe images.
 Different points on the FROC curve can be obtained for different detector confidence values.
 
@@ -202,9 +210,9 @@ The evaluation utilizes a modified version of the Detection and Identification R
 Since the FPIR is dependent on the number of detected faces, we make slight modifications to the false alarms axis of this curve by dividing it by the number of probe images, leading to the False Positive Identification per Image. This x-axis is in a logarithmic scale, representing non-rejected unknown faces and misdetections. 
 To prevent an increase in False Identifications, these unknown faces or misdetections should have a similarity score lower than the threshold specified for the points on the curve.
 
-For more details, please refer to [1]_.
+For more details, please refer to [1].
 
-.. note::
+**Note:**
    By default only rank 1 recognition is performed, but the evaluation can be done using any rank up to 10 (the upper bound of allowed labels per face).
    Providing more than one identity label per face will increase the number of false identifications, and may only have an impact on higher rank evaluations.
 
@@ -239,7 +247,7 @@ Here are the options that you might want/need to use/change for this script:
 
 Note that to achieve the same baseline FROC or O-ROC curve results on the validation, the ``--eval.iou: 0.5`` and ``--eval.rank.recognition: 1`` options should remain unchanged.
 
-.. note::
+**Note:** Please pay attention to the following information.
   If you plan to participate in both challenges, the face recognition score file can be used for evaluating both the detection and the recognition experiment. Therefore, it is enough to execute this evaluation script using ``--tasks recognition`` with the desired recognition score file(s).
 
 Here is an example of how to overwrite any parameter in the configuration file using the command line:
@@ -253,4 +261,4 @@ As seen in the command line, after calling the script, you should specify the pa
 
 In case of trouble with running the baseline algorithm or the evaluation, please contact us via email: furkan.kasim@uzh.ch
 
-.. [1] **P. Jonathon Phillips, Patrick Grother, and Ross Micheals** "Evaluation Methods in Face Recognition" in *Handbook of Face Recognition*, Second Edition, 2011.
+[1] **P. Jonathon Phillips, Patrick Grother, and Ross Micheals** "Evaluation Methods in Face Recognition" in *Handbook of Face Recognition*, Second Edition, 2011.
