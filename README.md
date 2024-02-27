@@ -36,6 +36,16 @@ Please register on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/chal
 ├── ...
 ``
 
+    .
+    ├── ...
+    ├── docs                    # Documentation files (alternatively `doc`)
+    │   ├── TOC.md              # Table of contents
+    │   ├── faq.md              # Frequently asked questions
+    │   ├── misc.md             # Miscellaneous information
+    │   ├── usage.md            # Getting started guide
+    │   └── ...                 # etc.
+    └── ...
+
 If you prefer to store this data in a different directory, you should modify or overwrite the ``--data_directory`` option in the `facerec/configs/baseline_config.yaml` file.  The test set images without any annotations will be distributed two weeks before the competition concludes, as stated on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/challenge.html).
 
 ## Installation
