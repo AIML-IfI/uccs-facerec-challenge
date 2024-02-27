@@ -17,9 +17,9 @@ def read_config_file():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--extract_gallery", "-ex",
-        default = True,
-        help = "Allows to extract gallery with another set at the same time"
+        "--disable-gallery", "-dis",
+        action="store_false",
+        help = "Disable the gallery feature extraction with the given set at the same time"
     )
 
     parent_direct = os.path.dirname(os.path.dirname(__file__))
@@ -35,7 +35,7 @@ def read_config_file():
 
     cfg.unfreeze()
 
-    if cfg.extract_gallery:
+    if cfg.disable_gallery:
         read_config_file.orig_config = yaml.safe_load(open(baseline_config,'r'))
         read_config_file.orig_config["which_set"] = "gallery"
 
@@ -54,7 +54,7 @@ def main():
     cfg = read_config_file()
 
     # load extraction protocol
-    logger.info("Loading {}%s extraction protocol".format("gallery and " if cfg.extract_gallery else ""), cfg.which_set)
+    logger.info("Loading {}%s extraction protocol".format("gallery and " if cfg.disable_gallery else ""), cfg.which_set)
 
     # download MagFace repo and its model weights if it wasn't downloaded before
     logger.info("Downloading/Activating MagFace and its model weights")
@@ -65,7 +65,7 @@ def main():
     model,device = build_model(cfg)
 
     # sets that will be extracted
-    sets = [cfg.which_set,"gallery"] if cfg.extract_gallery else [cfg.which_set]
+    sets = [cfg.which_set,"gallery"] if cfg.disable_gallery else [cfg.which_set]
 
     for set_name in sets:
 
