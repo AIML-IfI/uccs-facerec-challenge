@@ -8,7 +8,7 @@ This package utilizes the PyTorch framework to implement baseline algorithms and
 This package does not include the original image and protocol files for the competition.
 Please register on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/challenge.html). Upon confirming your registration, we will provide the data, including gallery and validation images along with their protocol files, in a zip file. Please extract zip files **into a new directory named `data`** (the .zip files contain the appropriate directory structure) within this package. After this, the directory structure should appear as follows:
 
-    .uccs-facerec-challenge/
+    uccs-facerec-challenge/
     ├── data/
     │   ├── gallery_images/
     │   │     ├── 0001/
@@ -113,12 +113,12 @@ You can easily call the face extractor baseline script after successful installa
   ``baseline_recognition.py``
 
 The MagFace extracts features with the shape of (,512) for both probe and gallery. 
-For validation, the script stores all information (detection scores, bounding boxes, and embeddings) of the faces based on the probe image. 
+For the validation, the script stores all information (detection scores, bounding boxes, and embeddings) of the faces based on the probe image. 
 For the gallery, it stores five facial landmarks and embeddings based on an identity. In conclusion, it compiles these dictionaries into .pth files for both sets, simplifying the process of generating the score file in the next step.
 
 Once the script execution is complete, the directory structure appears as follows:
 
-    .results/
+    results/
     ├── validation_embeddings/
     │   ├── probe-image1.pth
     │   │     - Content (a dict): {
@@ -158,7 +158,9 @@ Here are the options that you might want/need to use/change for this script:
 
 Here is an example of how to overwrite any parameter in the configuration file using the command line:
 
-  ``baseline_recognition.py facerec/configs/baseline_config.yaml --recognition.workers NUMBER-OF-WORKERS --recognition.result_dir YOUR-RESULT-DIRECTORY``
+  ```bash
+  baseline_recognition.py facerec/configs/baseline_config.yaml --recognition.workers NUMBER-OF-WORKERS --recognition.result_dir YOUR-RESULT-DIRECTORY
+  ```
 
 ### Scoring
 
@@ -218,7 +220,7 @@ Here are the main options that you might want/need to use/change for this script
 
 > **Note that** If you plan to participate in both challenges, the face recognition score file can be used for evaluating both the detection and the recognition experiment. Therefore, it is enough to only submit the desired identification score file. More details can be found in the [Competition Website](https://www.ifi.uzh.ch/en/aiml/challenge.html).
 
-##### Detection
+#### Detection
 
 In the face detection evaluation, the script compares detected bounding boxes, utilizing the standard IOU metric with a threshold of `0.5`, against the ground truth. 
 Only the detection box with the highest overlap can be considered a true positive, while others are penalized. 
@@ -247,10 +249,10 @@ Here is an example of how to overwrite any parameter in the configuration file u
   evaluation.py facerec/configs/baseline_config.yaml --tasks detection --eval.detection.files FILE1 FILE2 --eval.detection.labels LABEL1 LABEL2
   ```
 
-##### Recognition
+#### Recognition
 
 During the evaluation of face recognition models, faces will be either assigned to an identity or rejected based on these similarity scores. 
-All unique similarity score values in the score file will be a threshold value for matching.
+All unique similarity score values in the score file will be threshold values for matching.
 A face is counted correctly identified if the recognition score surpasses the threshold, and the correct identity possesses the highest recognition score for that particular face.
 Providing high scores for unknown identities or misdetections, which indicate a false match with a gallery identity, will result in penalties. 
 
@@ -260,7 +262,7 @@ This x-axis is in a logarithmic scale, representing non-rejected unknown faces a
 To prevent an increase in False Identifications, these unknown faces or misdetections should have a similarity score lower than the threshold specified for the points on the curve.
 For more details, please refer to [1].
 
-You can easily call the evaluation script for only recognition task after successful installation using:
+You can easily call the evaluation script for only the recognition task after successful installation using:
 
   ```bash
   evaluation.py facerec/configs/baseline_config.yaml --tasks recognition
@@ -269,13 +271,13 @@ Here are the options that you might want/need to use/change for this recognition
 
   ``--eval.recognition.files``: A list of score file(s) containing recognition results; default : ``['{result_directory}/UCCS-scoring-baseline-{which_set}.txt']``. For comparison, different recognition score files can be added.
 
-  ``--eval.recognition.labels``: A list of the label(s) for the algorithms; must be the same number and in the same order as ``--eval.recognition.files``; default : ``['MagFace']``.
+  ``--eval.recognition.labels``: A list of the label(s) for the algorithms; must be the same number and in the same order as ``--eval.recognition.files``; default: ``['MagFace']``.
 
   ``--eval.recognition.rank``: Plot DIR curves for the given rank; default : ``1``.
 
   ``--eval.recognition.oroc``: The .pdf file where O-ROC curve will be written into; default : ``{result_directory}/UCCS-OROC-{which_set}.pdf``.
 
-> **Note that** To achieve the same baseline O-ROC curve result on the validation, the ``--eval.iou: 0.5`` and ``--eval.rank.recognition: 1`` options should remain unchanged.
+> **Note that** To achieve the same baseline O-ROC curve on the validation, the ``--eval.iou: 0.5`` and ``--eval.rank.recognition: 1`` options should remain unchanged.
 
 Here is an example of how to overwrite any parameter in the configuration file using the command line:
 
