@@ -8,21 +8,14 @@ This package utilizes the PyTorch framework to implement baseline algorithms and
 This package does not include the original image and protocol files for the competition.
 Please register on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/challenge.html). Upon confirming your registration, we will provide the data, including gallery and validation images along with their protocol files, in a zip file. Please extract zip files **into a new directory named `data`** (the .zip files contain the appropriate directory structure) within this package. After this, the directory structure should appear as follows:
 
-`uccs-facerec-challenge/
-
+``uccs-facerec-challenge/
 ├── data
-
   ├── gallery_images/
-
     ├── 0001
-
       ├── 0001_0.png
-
       ├── ...
-
       └── 0001_9.png
     ├── ...
-
     └── 1000
 
   ├── validation_images/
@@ -41,7 +34,8 @@ Please register on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/chal
 ├── README
 ├── setup.py
 ├── ...
-`
+``
+
 If you prefer to store this data in a different directory, you should modify or overwrite the ``--data_directory`` option in the `facerec/configs/baseline_config.yaml` file.  The test set images without any annotations will be distributed two weeks before the competition concludes, as stated on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/challenge.html).
 
 ## Installation
