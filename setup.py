@@ -1,7 +1,14 @@
-from setuptools import setup, find_packages
+# -*- coding: UTF-8 -*-
 
+from setuptools import setup, find_packages
+from os.path import abspath,dirname,join
 # The only thing we do in this file is to call the setup() function with all
 # parameters that define our package.
+THIS_DIR: str = abspath(dirname(__file__))
+
+with open(join(THIS_DIR, 'README.md'), encoding='utf-8') as readme:
+    long_description = readme.read()
+    
 setup(
 
     # This is the basic information about your project. Modify all this
@@ -12,8 +19,8 @@ setup(
 
     url = 'https://github.com/AIML-IfI/uccs-facerec-challenge',
     license = 'BSD',
-    author = 'Manuel Guenther',
-    author_email = 'siebenkopf@googlemail.com',
+    author = 'Furkan Kasim',
+    author_email = 'furkan.kasim@outlook.com',
 
     # If you have a better, long description of your package, place it on the
     # 'doc' directory and then hook it here
@@ -24,17 +31,15 @@ setup(
     # It will find all package-data inside the 'bob' directory.
     packages = find_packages('.'),
     include_package_data = True,
-    package_data={
-        '': ['facerec/configs/*.yaml'],
-    },
 
     # This line defines which packages should be installed when you "install"
     # this package. All packages that are mentioned here, but are not installed
     # on the current system will be installed locally and only visible to the
     # scripts of this package. Don't worry - You won't need administrative
     # privileges when using buildout.
-    #python_requires = '>=3.10',
-    #install_requires = open("requirements.txt").read().splitlines(),
+    
+    # python_requires = '>=3.10',
+    # install_requires = open("requirements.txt").read().splitlines(),
 
     # This entry defines which scripts you will have inside the 'bin' directory
     # once you install the package (or run 'bin/buildout'). The order of each

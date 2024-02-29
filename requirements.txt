@@ -10,5 +10,5 @@ opencv-python>=4.8
 facenet_pytorch==2.5.3
 tensorboard
 gdown==5.0.1
-yamlparser @ git+https://github.com/AIML-IfI/yamlparser.git@main
+yamlparser
 termcolor

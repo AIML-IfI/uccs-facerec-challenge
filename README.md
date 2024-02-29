@@ -36,14 +36,14 @@ Please register on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/chal
     ├── setup.py
     └── ...
 
-If you prefer to store this data in a different directory, you should modify or overwrite the ``--data_directory`` option in the `facerec/configs/baseline_config.yaml` file.  The test set images without any annotations will be distributed two weeks before the competition concludes, as stated on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/challenge.html).
+If you prefer to store this data in a different directory from `data`, you should modify or overwrite the ``--data_directory`` option in the `facerec/configs/baseline_config.yaml` file.  
+The test set images without any annotations will be distributed two weeks before the competition concludes, as stated on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/challenge.html).
 
 ## Installation
 ---------------
 
-The installation of this package follows via conda
+The installation of this package follows via conda:
 
-Install via conda:
 ```bash
     git clone https://github.com/AIML-IfI/uccs-facerec-challenge.git
     cd uccs-facerec-challenge
@@ -86,8 +86,6 @@ You can easily call the face detector baseline script after successful installat
   ``baseline_detection.py``
 
 If the baseline configuration file suits your environment, there's no need to specify the configuration file's path on the command line while calling the script. Simply running the script will automatically read the default `baseline_config.yaml` file.
-
-Please refer to ``baseline_detection.py facerec/configs/baseline_config.yaml -h`` for all possible options.
 
 Here are the options that you might want/need to use/change for this script:
 
@@ -140,7 +138,6 @@ Once the script execution is complete, the directory structure appears as follow
         ├── ...
 
 If the baseline configuration file suits your environment, there's no need to specify the configuration file's path on the command line while running the script. Simply calling the script will automatically read the `baseline_config.yaml` file.
-Please refer to ``baseline_recognition.py facerec/configs/baseline_config.yaml -h`` for all possible options.
 
 Here are the options that you might want/need to use/change for this script:
 
@@ -164,8 +161,9 @@ Here is an example of how to overwrite any parameter in the configuration file u
 
 ### Scoring
 
-This script produces the desired score file for the last evaluation phase, applicable for both face detection and identification evaluations. 
-It initially reads gallery embeddings to establish enrollment, achieved by averaging 10 embeddings of the corresponding subject. 
+This script produces the desired score file for the last evaluation phase, applicable for both face detection and identification evaluations.
+For smooth execution of this scoring process, it is essential to store the embeddings of the gallery and validation, as explained in the preceding section (face recognition).
+This scoring initially reads gallery embeddings to establish enrollment, achieved by averaging 10 embeddings of the corresponding subject. 
 Therefore, each subject is represented by an array with a shape of (1,512) in the enrollment. 
 Following the enrollment, the script compares the embedding of each face in the probe images with those of 1000 subjects using cosine similarity. 
 Finally, it writes each similarity score of every subject along with their detection results (confidence scores and bounding boxes) into a file.
@@ -176,7 +174,7 @@ You can easily call the scoring script after successful installation using:
 
   ``scoring.py``
 
-If the baseline configuration file suits your environment, there's no need to specify the configuration file's path on the command line while running the script. Simply calling the script will automatically read the default `baseline_config.yaml` file. Please refer to ``scoring.py facerec/configs/baseline_config.yaml -h`` for all possible options.
+If the baseline configuration file suits your environment, there's no need to specify the configuration file's path on the command line while running the script. Simply calling the script will automatically read the default `baseline_config.yaml` file.
 
 Here are the options that you might want/need to use/change for this script:
 
@@ -208,7 +206,6 @@ You can easily call the evaluation script after successful installation using:
   ``evaluation.py``
 
 If the baseline configuration file suits your environment, there's no need to specify the configuration file's path on the command line while running the script. Simply calling the script will automatically read the default `baseline_config.yaml` file.
-Please refer to ``evaluation.py facerec/configs/baseline_config.yaml -h`` for all possible options.
 
 Here are the main options that you might want/need to use/change for this script:
 
