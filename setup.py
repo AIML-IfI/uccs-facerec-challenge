@@ -24,7 +24,7 @@ setup(
 
     # If you have a better, long description of your package, place it on the
     # 'doc' directory and then hook it here
-    long_description = open('README.md').read(),
+    long_description = long_description,
     long_description_content_type='text/markdown',
 
     # This line is required for any distutils based packaging.
