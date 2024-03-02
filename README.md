@@ -22,7 +22,7 @@ Please register on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/chal
     │   │   ├── jgsa451150sag15fou.jpg
     │   │   ├── ...
     │   │
-    │   ├── exclude_gallery_validation.pickle
+    │   ├── exclude_gallery_validation.txt
     │   ├── gallery.csv
     │   └── validation.csv
     │
@@ -36,7 +36,11 @@ Please register on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/chal
     ├── setup.py
     └── ...
 
-If you prefer to store this data in a different directory from `data`, you should modify or overwrite the ``--data_directory`` option in the `facerec/configs/baseline_config.yaml` file.  
+If you prefer to store this data in a different directory from `data`, you should modify ``--data_directory`` in the `facerec/configs/baseline_config.yaml` file or overwrite it on the command line:
+
+```bash
+    [script] --data_directory YOUR-DATA-DIRECTORY
+```
 The test set images without any annotations will be distributed two weeks before the competition concludes, as stated on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/challenge.html).
 
 ## Installation
@@ -49,7 +53,6 @@ The installation of this package follows via conda:
     cd uccs-facerec-challenge
     conda env create -f environment.yaml
     conda activate uccs-facerec
-    pip install -e .
 ```
 
 ## Scripts
@@ -75,7 +78,20 @@ Here are these options that you might want/need to use/change:
   
   ``--gpu``: The GPU index to run the detector/extractor on it, to run in CPU mode please specify ``-1``; default: ``0``.
 
-You can modify these parameters in the configuration file if desired, and it's also possible to overwrite any parameter on the command line. In this case, the path of the configuration file containing the arguments you wish to overwrite should be specified on the command line after calling the script. The detailed explanations for each script are provided within their corresponding sections below.
+
+You have the option to adjust these parameters within the configuration file or generate a new configuration file using the same format. Make sure that the newly created configuration file is explicitly specified on the command line:
+
+```bash
+    [script] YOUR-CONFIG-FILE
+```
+
+It's also possible to overwrite any parameter on the command line. In this case, arguments you wish to overwrite should be stated on the command line after calling the script:
+
+```bash
+    [script] --param1 YOUR-VALUE --param2 YOUR-VALUE
+```
+
+The detailed explanations for each script are provided within their corresponding sections below.
 
 ### Face Detection
 The first script is a face detection script, which will detect the faces in the validation (and test) set and write the results into a file. 
@@ -83,7 +99,7 @@ The baseline detector uses the PyTorch implementation of the [MTCNN](https://pyp
 
 You can easily call the face detector baseline script after successful installation using:
 
-  ``baseline_detection.py``
+  ``baseline_detection``
 
 If the baseline configuration file suits your environment, there's no need to specify the configuration file's path on the command line while calling the script. Simply running the script will automatically read the default `baseline_config.yaml` file.
 
@@ -98,7 +114,7 @@ Here are the options that you might want/need to use/change for this script:
 Here is an example of how to overwrite any parameter in the configuration file using the command line:
 
   ```bash
-  baseline_detection.py facerec/configs/baseline_config.yaml --data_directory YOUR-DATA-DIRECTORY --detection.results YOUR-FILE-PATH
+  baseline_detection  --data_directory YOUR-DATA-DIRECTORY --detection.results YOUR-FILE-PATH
   ```
 
 ### Face Recognition
@@ -108,7 +124,7 @@ The MagFace model and its weights don't require any manual downloading from the 
 
 You can easily call the face extractor baseline script after successful installation using:
 
-  ``baseline_recognition.py``
+  ``baseline_recognition``
 
 The MagFace extracts features with the shape of (,512) for both probe and gallery. 
 For the validation, the script stores all information (detection scores, bounding boxes, and embeddings) of the faces based on the probe image. 
@@ -156,7 +172,7 @@ Here are the options that you might want/need to use/change for this script:
 Here is an example of how to overwrite any parameter in the configuration file using the command line:
 
   ```bash
-  baseline_recognition.py facerec/configs/baseline_config.yaml --recognition.workers NUMBER-OF-WORKERS --recognition.result_dir YOUR-RESULT-DIRECTORY
+  baseline_recognition --recognition.workers NUMBER-OF-WORKERS --recognition.result_dir YOUR-RESULT-DIRECTORY
   ```
 
 ### Scoring
@@ -168,11 +184,11 @@ Therefore, each subject is represented by an array with a shape of (1,512) in th
 Following the enrollment, the script compares the embedding of each face in the probe images with those of 1000 subjects using cosine similarity. 
 Finally, it writes each similarity score of every subject along with their detection results (confidence scores and bounding boxes) into a file.
 
-> **Note that** If your intention is only to participate in the face detection task, calling this script is unnecessary. Creating a file similar to ``baseline_detection.py`` is sufficient. Further details can be found on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/challenge.html) regarding the expected format of score files.
+> **Note that** If your intention is only to participate in the face detection task, calling this script is unnecessary. Creating a file similar to ``baseline_detection`` is sufficient. Further details can be found on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/challenge.html) regarding the expected format of score files.
 
 You can easily call the scoring script after successful installation using:
 
-  ``scoring.py``
+  ``scoring``
 
 If the baseline configuration file suits your environment, there's no need to specify the configuration file's path on the command line while running the script. Simply calling the script will automatically read the default `baseline_config.yaml` file.
 
@@ -187,7 +203,7 @@ Here are the options that you might want/need to use/change for this script:
 Here is an example of how to overwrite any parameter in the configuration file using the command line:
 
   ```bash
-  scoring.py facerec/configs/baseline_config.yaml --scoring.gallery GALLERY-EMBEDDINGS-DIRECTORY --scoring.probe PROBE-EMBEDDINGS-DIRECTORY
+  scoring --scoring.gallery GALLERY-EMBEDDINGS-DIRECTORY --scoring.probe PROBE-EMBEDDINGS-DIRECTORY
   ```
 
 ### Evaluation
@@ -203,7 +219,7 @@ You can use the evaluation script for two purposes:
 
 You can easily call the evaluation script after successful installation using:
 
-  ``evaluation.py``
+  ``evaluation``
 
 If the baseline configuration file suits your environment, there's no need to specify the configuration file's path on the command line while running the script. Simply calling the script will automatically read the default `baseline_config.yaml` file.
 
@@ -211,7 +227,7 @@ Here are the main options that you might want/need to use/change for this script
 
   ``--tasks``: Specify the tasks that will perform in this evaluation; possible values: ``detection, recognition``; default : ``['detection', 'recognition']``.
 
-  ``--eval.exclude_gallery``:  Specify the file where gallery face IDs are stored to exclude them from the results; default = ``{data_directory}/exclude_gallery_{which_set}.pickle``. Note that since the gallery faces are cropped from the dataset, they will be excluded from the results. This list of gallery face IDs will be shared along with the dataset.
+  ``--eval.exclude_gallery``:  Specify the file where gallery face IDs are stored to exclude them from the results; default: ``{data_directory}/exclude_gallery_{which_set}.txt``. Note that since the gallery faces are cropped from the dataset, they will be excluded from the results. This list of gallery face IDs will be shared along with the dataset.
 
   ``--eval.linear``: If specified, plots will be in linear, otherwise semilogx; default : ``False``.
 
@@ -228,7 +244,7 @@ Different points on the FROC curve can be obtained for different detector confid
 You can easily call the evaluation script for only detection task after successful installation using:
 
   ```bash
-  evaluation.py facerec/configs/baseline_config.yaml --tasks detection
+  evaluation --tasks detection
   ```
 Here are the options that you might want/need to use/change for this detection task:
 
@@ -243,7 +259,7 @@ Here are the options that you might want/need to use/change for this detection t
 Here is an example of how to overwrite any parameter in the configuration file using the command line:
 
    ```bash
-  evaluation.py facerec/configs/baseline_config.yaml --tasks detection --eval.detection.files FILE1 FILE2 --eval.detection.labels LABEL1 LABEL2
+  evaluation --tasks detection --eval.detection.files FILE1 FILE2 --eval.detection.labels LABEL1 LABEL2
   ```
 
 #### Recognition
@@ -262,7 +278,7 @@ For more details, please refer to [1].
 You can easily call the evaluation script for only the recognition task after successful installation using:
 
   ```bash
-  evaluation.py facerec/configs/baseline_config.yaml --tasks recognition
+  evaluation --tasks recognition
   ```
 Here are the options that you might want/need to use/change for this recognition task:
 
@@ -279,7 +295,7 @@ Here are the options that you might want/need to use/change for this recognition
 Here is an example of how to overwrite any parameter in the configuration file using the command line:
 
    ```bash
-  evaluation.py facerec/configs/baseline_config.yaml --tasks recognition --eval.recognition.files FILE1 FILE2 --eval.recognition.labels LABEL1 LABEL2
+  evaluation --tasks recognition --eval.recognition.files FILE1 FILE2 --eval.recognition.labels LABEL1 LABEL2
   ```
 
 ## Trouble Shooting
