@@ -14,7 +14,7 @@ setup(
     # This is the basic information about your project. Modify all this
     # information before releasing code publicly.
     name = 'challenge.uccs',
-    version = "3.0.1",
+    version = "3.1.0",
     description = 'Source code for running the baseline and evaluation of the third UCCS face recognition challenge',
 
     url = 'https://github.com/AIML-IfI/uccs-facerec-challenge',
@@ -24,7 +24,7 @@ setup(
 
     # If you have a better, long description of your package, place it on the
     # 'doc' directory and then hook it here
-    long_description = open('README.md').read(),
+    long_description = long_description,
     long_description_content_type='text/markdown',
 
     # This line is required for any distutils based packaging.
