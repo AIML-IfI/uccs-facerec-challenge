@@ -8,33 +8,24 @@ This package utilizes the PyTorch framework to implement baseline algorithms and
 This package does not include the original image and protocol files for the competition.
 Please register on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/challenge.html). Upon confirming your registration, we will provide the data, including gallery and validation images along with their protocol files, in a zip file. Please extract zip files **into a new directory named `data`** (the .zip files contain the appropriate directory structure) within this package. After this, the directory structure should appear as follows:
 
-    uccs-facerec-challenge/
-    ├── data/
-    │   ├── gallery_images/
-    │   │     ├── 0001/
-    │   │     │   ├── 0001_0.png
-    │   │     │   ├── ...
-    │   │     │   └── 0001_9.png
-    │   │     ├── ...
-    │   │     └── 1000
-    │   │
-    │   ├── validation_images/
-    │   │   ├── jgsa451150sag15fou.jpg
-    │   │   ├── ...
-    │   │
-    │   ├── exclude_gallery_validation.txt
-    │   ├── gallery.csv
-    │   └── validation.csv
-    │
-    ├── facerec/
-    │   ├── configs/
-    │   ├── script/
-    │   └── ...
-    │
-    ├── environment.yaml
-    ├── README
-    ├── setup.py
-    └── ...
+```bash
+  data/
+  ├── gallery_images/
+  │   ├── 0001/
+  │   │   ├── 0001_0.png
+  │   │   ├── ...
+  │   │   └── 0001_9.png
+  │   ├── ...
+  │   └── 1000
+  │
+  ├── validation_images/
+  │   ├── jgsa451150sag15fou.jpg
+  │   ├── ...
+  │ 
+  ├── exclude_gallery_validation.pickle
+  ├── gallery.csv
+  └── validation.csv
+```
 
 If you prefer to store this data in a different directory from `data`, you should modify ``--data_directory`` in the `facerec/configs/baseline_config.yaml` file or overwrite it on the command line:
 
@@ -46,13 +37,17 @@ The test set images without any annotations will be distributed two weeks before
 ## Installation
 ---------------
 
-The installation of this package follows via conda:
+The installation of this package follows via `pip`
 
 ```bash
-    git clone https://github.com/AIML-IfI/uccs-facerec-challenge.git
-    cd uccs-facerec-challenge
-    conda env create -f environment.yaml
-    conda activate uccs-facerec
+    pip install challenge.uccs
+```
+To execute the scripts successfully, it is essential to obtain the dataset. Once acquired, either switch your current path to the location where it is downloaded or overwrite ``--data_directory`` argument on the command line.
+
+```bash
+    cd [The path of the PARENT FOLDER where the DATA is located]
+    OR
+    [script] --data_directory YOUR-DATA-DIRECTORY
 ```
 
 ## Scripts
@@ -132,7 +127,8 @@ For the gallery, it stores five facial landmarks and embeddings based on an iden
 
 Once the script execution is complete, the directory structure appears as follows:
 
-    results/
+```bash
+  results/
     ├── validation_embeddings/
     │   ├── probe-image1.pth
     │   │     - Content (a dict): {
@@ -143,7 +139,7 @@ Once the script execution is complete, the directory structure appears as follow
     │   │
     │   ├── probe-image2.pth
     │   ├── ...
-    │
+    │  
     ├── gallery_embeddings/
         ├── subject1.pth
         │     - Content (a dict):{
@@ -152,6 +148,7 @@ Once the script execution is complete, the directory structure appears as follow
         │           }
         ├── subject2.pth
         ├── ...
+```
 
 If the baseline configuration file suits your environment, there's no need to specify the configuration file's path on the command line while running the script. Simply calling the script will automatically read the `baseline_config.yaml` file.
 
