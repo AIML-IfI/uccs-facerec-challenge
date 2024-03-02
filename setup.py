@@ -38,8 +38,8 @@ setup(
     # scripts of this package. Don't worry - You won't need administrative
     # privileges when using buildout.
     
-    # python_requires = '>=3.10',
-    # install_requires = open("requirements.txt").read().splitlines(),
+    python_requires = '>=3.10',
+    install_requires = open("requirements.txt").read().splitlines(),
 
     # This entry defines which scripts you will have inside the 'bin' directory
     # once you install the package (or run 'bin/buildout'). The order of each
