@@ -26,3 +26,4 @@ dependencies:
       - gdown==5.0.1
       - yamlparser
       - termcolor
+      - -e .
