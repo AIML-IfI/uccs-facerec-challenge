@@ -14,7 +14,7 @@ setup(
     # This is the basic information about your project. Modify all this
     # information before releasing code publicly.
     name = 'challenge.uccs',
-    version = "3.0.0",
+    version = "3.0.1",
     description = 'Source code for running the baseline and evaluation of the third UCCS face recognition challenge',
 
     url = 'https://github.com/AIML-IfI/uccs-facerec-challenge',
@@ -59,10 +59,10 @@ setup(
 
       # scripts should be declared using this entry:
       'console_scripts' : [
-          'baseline_detection.py= facerec.script.baseline_detection:main',
-          'baseline_recognition.py = facerec.script.baseline_recognition:main',
-          'scoring.py = facerec.script.scoring:main',
-          'evaluation.py   = facerec.script.evaluation:main',
+          'baseline_detection = facerec.script.baseline_detection:main',
+          'baseline_recognition = facerec.script.baseline_recognition:main',
+          'scoring = facerec.script.scoring:main',
+          'evaluation  = facerec.script.evaluation:main',
       ],
     },
 
