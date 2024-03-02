@@ -12,7 +12,7 @@ def read_ground_truth(data_dir,which_set):
     """
     csv_path = os.path.join(data_dir,which_set + ".csv")
     if not os.path.exists(csv_path):
-        raise ValueError("The ground truth file '%s' does not exist" % which_set)
+        raise ValueError("The ground truth file %s.csv does not exist in %s (Data Directory)" % (which_set, data_dir))
     
     csv_file = pd.read_csv(csv_path)
     img_files = csv_file["FILE"].unique()
