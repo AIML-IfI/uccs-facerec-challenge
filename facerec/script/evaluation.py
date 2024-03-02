@@ -1,6 +1,6 @@
 # This file contains code to plot F-ROC and O-ROC file for the baseline
 # It can be used for either all of them or just one of them (detection and recognition)
-# But arguments that are below the interested section should be given
+
 import logging
 import yamlparser
 import argparse
@@ -65,9 +65,12 @@ def main():
         face_numbers = sum([len(face_ids) for face_ids,_,_ in ground_truth.values()])
         image_numbers = len(ground_truth)
 
+        # exclude gallery faces from the result
         if cfg.eval.exclude_gallery is not None:
-            with open(cfg.eval.exclude_gallery, 'rb') as file:
-                exclude = pickle.load(file)
+            
+            with open(cfg.eval.exclude_gallery, 'r') as file:
+                exclude = [int(line.strip()) for line in file]
+
             # update the number of faces in the set
             face_numbers -= len(exclude)
 
