@@ -273,7 +273,7 @@ All unique similarity score values in the score file will be threshold values fo
 A face is counted correctly identified if the recognition score surpasses the threshold, and the correct identity possesses the highest recognition score for that particular face.
 Providing high scores for unknown identities or misdetections, which indicate a false match with a gallery identity, will result in penalties. 
 
-The evaluation utilizes a modified version of the Detection and Identification Rate (DIR) [1] curve on rank 1, also known as the Open-Set ROC curve that computes True Positive Identification Rates (TPIR) over False Positive Identification Rates (FPIR). 
+The evaluation utilizes a modified version of the Detection and Identification Rate (DIR) curve [1] on rank 1, also known as the Open-Set ROC curve that computes True Positive Identification Rates (TPIR) over False Positive Identification Rates (FPIR). 
 Since the false alarm axis is dependent on the number of detected faces, we make slight modifications to this axis by dividing it by the number of probe images, leading to the False Positive Identification per Image [2].
 This x-axis is in a logarithmic scale, representing non-rejected unknown faces and misdetections.
 To prevent an increase in False Identifications, these unknown faces or misdetections should have a similarity score lower than the threshold specified for the points on the curve.
@@ -307,4 +307,5 @@ Here is an example of how to overwrite any parameter in the configuration file u
 In case of trouble with running the baseline algorithm or the evaluation, please contact us via email: furkan.kasim@uzh.ch
 
 [1] **P. Jonathon Phillips, Patrick Grother, and Ross Micheals** "Evaluation Methods in Face Recognition" in *Handbook of Face Recognition*, Second Edition, 2011.
+
 [2] **Manuel Günther, Akshay Raj Dhamija and Terrance E. Boult.** Watchlist Adaptation: Protecting the Innocent. *International Conference of the Biometrics Special Interest Group (BIOSIG)*, 2020
