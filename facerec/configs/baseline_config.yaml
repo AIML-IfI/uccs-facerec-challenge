@@ -39,7 +39,7 @@ eval:
 
   recognition:                                              # More scoring files can be added to the  files list to compare them at the same plot.
     files: ['{result_directory}/UCCS-scoring-baseline-{which_set}.txt'] # Get the file(s) with the UCCS face detection results
-    rank: 1                                                 # Plot DIR curves for the given rank
+    rank: 1                                                 # Plot O-ROC curves for the given rank
     labels: ["MagFace"]                                     # Use these labels; if not given, the directory names will be used
     oroc: '{result_directory}/UCCS-OROC-{which_set}.pdf'    # The file where the O-ROC curve will be plotted into
     plot_numbers: False                                     # If selected, the total number of recognized faces will be shown (rather than percentages)

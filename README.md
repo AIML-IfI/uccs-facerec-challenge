@@ -89,7 +89,10 @@ It's also possible to overwrite any parameter on the command line. In this case,
 The detailed explanations for each script are provided within their corresponding sections below.
 
 ### Face Detection
-The first script is a face detection script, which will detect the faces in the validation (and test) set and write the results into a file. 
+The first script is a face detection script, which will detect the faces in the validation (and test) set and write the results (detection scores, bounding boxes and landmarks) into a file.
+The bounding boxes consist of four components—left, top, width, and height—while the detection scores fall within the range of 0 to 1.
+Facial landmarks include (x,y) coordinates for the right eye, left eye, nose, right mouth, left mouth, respectively.
+
 The baseline detector uses the PyTorch implementation of the [MTCNN](https://pypi.org/project/facenet-pytorch/) face detection module, where we had to lower the detection thresholds in order to detect most of the faces in the images, but this leads to many background detections.
 
 You can easily call the face detector baseline script after successful installation using:
@@ -122,8 +125,9 @@ You can easily call the face extractor baseline script after successful installa
   ``baseline_recognition``
 
 The MagFace extracts features with the shape of (,512) for both probe and gallery. 
-For the validation, the script stores all information (detection scores, bounding boxes, and embeddings) of the faces based on the probe image. 
-For the gallery, it stores five facial landmarks and embeddings based on an identity. In conclusion, it compiles these dictionaries into .pth files for both sets, simplifying the process of generating the score file in the next step.
+For the validation, the script stores all information (detection scores, bounding boxes, and embeddings) of the faces based on the probe image.
+The bounding boxes consist of four components—left, top, width, and height—while the detection scores fall within the range of 0 to 1.
+For the gallery, it stores five facial landmarks (including (x,y) coordinates for right eye, left eye, nose, right mouth, left mouth) and embeddings based on an identity. In conclusion, it compiles these dictionaries into .pth files for both sets, simplifying the process of generating the score file in the next step.
 
 Once the script execution is complete, the directory structure appears as follows:
 
@@ -134,16 +138,16 @@ Once the script execution is complete, the directory structure appears as follow
     │   │     - Content (a dict): {
     │   │         'detection_scores': Array with shape (N, 1), # where N is the number of detected faces in the image
     │   │         'bboxes': Array with shape (N, 4),
-    │   │         'embeddings': Array with shape (N, 1)
+    │   │         'embeddings': Array with shape (N, 512)
     │   │         }
     │   │
     │   ├── probe-image2.pth
     │   ├── ...
     │  
     ├── gallery_embeddings/
-        ├── subject1.pth
+        ├── subject1.pth          # each subject has 10 faces in the gallery
         │     - Content (a dict):{
-        │         'landmarks': Array with shape (10, 5,2), # each subject has 10 faces in the gallery
+        │         'landmarks': Array with shape (10, 5,2), 
         │         'embeddings': Array with shape (10,512)
         │           }
         ├── subject2.pth
@@ -179,7 +183,7 @@ For smooth execution of this scoring process, it is essential to store the embed
 This scoring initially reads gallery embeddings to establish enrollment, achieved by averaging 10 embeddings of the corresponding subject. 
 Therefore, each subject is represented by an array with a shape of (1,512) in the enrollment. 
 Following the enrollment, the script compares the embedding of each face in the probe images with those of 1000 subjects using cosine similarity. 
-Finally, it writes each similarity score of every subject along with their detection results (confidence scores and bounding boxes) into a file.
+Finally, it writes each similarity score of every subject along with their detection results (confidence scores and bounding boxes (left, top, width, height)) into a file.
 
 > **Note that** If your intention is only to participate in the face detection task, calling this script is unnecessary. Creating a file similar to ``baseline_detection`` is sufficient. Further details can be found on the [Competition Website](https://www.ifi.uzh.ch/en/aiml/challenge.html) regarding the expected format of score files.
 
@@ -226,7 +230,7 @@ Here are the main options that you might want/need to use/change for this script
 
   ``--eval.exclude_gallery``:  Specify the file where gallery face IDs are stored to exclude them from the results; default: ``{data_directory}/exclude_gallery_{which_set}.txt``. Note that since the gallery faces are cropped from the dataset, they will be excluded from the results. This list of gallery face IDs will be shared along with the dataset.
 
-  ``--eval.linear``: If specified, plots will be in linear, otherwise semilogx; default : ``False``.
+  ``--eval.linear``: If specified True, the False Positive / False Alarm axes will be plotted in linear form, otherwise in logaritmic form; default : ``False``.
 
 > **Note that** If you plan to participate in both challenges, the face recognition score file can be used for evaluating both the detection and the recognition experiment. Therefore, it is enough to only submit the desired identification score file. More details can be found in the [Competition Website](https://www.ifi.uzh.ch/en/aiml/challenge.html).
 
@@ -266,11 +270,10 @@ All unique similarity score values in the score file will be threshold values fo
 A face is counted correctly identified if the recognition score surpasses the threshold, and the correct identity possesses the highest recognition score for that particular face.
 Providing high scores for unknown identities or misdetections, which indicate a false match with a gallery identity, will result in penalties. 
 
-The evaluation utilizes a modified version of the Detection and Identification Rate (DIR) curve on rank 1, also known as the Open-Set ROC curve that computes True Positive Identification Rates (TPIR) over False Positive Identification Rates (FPIR). 
-Since the FPIR is dependent on the number of detected faces, we make slight modifications to the false alarms axis of this curve by dividing it by the number of probe images, leading to the False Positive Identification per Image.
-This x-axis is in a logarithmic scale, representing non-rejected unknown faces and misdetections. 
+The evaluation utilizes a modified version of the Detection and Identification Rate (DIR) curve [1] on rank 1, also known as the Open-Set ROC curve that computes True Positive Identification Rates (TPIR) over False Positive Identification Rates (FPIR). 
+Since the false alarm axis is dependent on the number of detected faces, we make slight modifications to this axis by dividing it by the number of probe images, leading to the False Positive Identification per Image [2].
+This x-axis is in a logarithmic scale, representing non-rejected unknown faces and misdetections.
 To prevent an increase in False Identifications, these unknown faces or misdetections should have a similarity score lower than the threshold specified for the points on the curve.
-For more details, please refer to [1].
 
 You can easily call the evaluation script for only the recognition task after successful installation using:
 
@@ -283,11 +286,11 @@ Here are the options that you might want/need to use/change for this recognition
 
   ``--eval.recognition.labels``: A list of the label(s) for the algorithms; must be the same number and in the same order as ``--eval.recognition.files``; default: ``['MagFace']``.
 
-  ``--eval.recognition.rank``: Plot DIR curves for the given rank; default : ``1``.
+  ``--eval.recognition.rank``: Plot O-ROC curve(s) for the given rank; default : ``1``.
 
   ``--eval.recognition.oroc``: The .pdf file where O-ROC curve will be written into; default : ``{result_directory}/UCCS-OROC-{which_set}.pdf``.
 
-> **Note that** To achieve the same baseline O-ROC curve on the validation, the ``--eval.iou: 0.5`` and ``--eval.rank.recognition: 1`` options should remain unchanged.
+> **Note that** To achieve the same baseline O-ROC curve on the validation, the ``--eval.iou: 0.5`` and ``--eval.recognition.rank: 1`` options should remain unchanged.
 
 Here is an example of how to overwrite any parameter in the configuration file using the command line:
 
@@ -301,3 +304,5 @@ Here is an example of how to overwrite any parameter in the configuration file u
 In case of trouble with running the baseline algorithm or the evaluation, please contact us via email: furkan.kasim@uzh.ch
 
 [1] **P. Jonathon Phillips, Patrick Grother, and Ross Micheals** "Evaluation Methods in Face Recognition" in *Handbook of Face Recognition*, Second Edition, 2011.
+
+[2] **Manuel Günther, Akshay Raj Dhamija and Terrance E. Boult.** Watchlist Adaptation: Protecting the Innocent. *International Conference of the Biometrics Special Interest Group (BIOSIG)*, 2020
