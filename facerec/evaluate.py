@@ -142,15 +142,16 @@ def compute_TPIR_FPIPI(all_scores,all_matched_detections,known_numbers,image_num
         # get the score for each detection in the image
         _, _, scores =  all_scores[img]
         similarity_score = np.array(scores)
-
+        
+        # get score indices based on the rank
+        sort = np.argsort(similarity_score[detection_indice])[::-1][:rank]
+        
         #count true positive identification: there are two factors to be counted as true positive identification
         #1. First, the detection bbox must be matched with ground truth
         #2. Second, the similarity score of this matching should match with the subject id based on the threshold
         for detection_indice,sub_id in matched_detections:
             
             if sub_id > 0:
-                # get score indices based on the rank
-                sort = np.argsort(similarity_score[detection_indice])[::-1][:rank]
                 best_ids = sort + 1  # because scores are sorted based on idendity number starting 1
 
                 if sub_id in best_ids:
